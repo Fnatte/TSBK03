@@ -6,12 +6,13 @@
 
 #version 150
 
-in float shade;
+in vec3 vertNormal;
+
+uniform mat4 viewMatrix;
 
 out vec4 out_Color;
 
-void main(void)
-{
-	out_Color=vec4(shade,shade,shade,1.0);
+void main(void) {
+	float shade = (mat3(viewMatrix) * vertNormal); // Fake shading
+	out_Color=vec4(shade, shade, shade, 1.0);
 }
-

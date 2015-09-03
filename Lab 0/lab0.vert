@@ -12,12 +12,11 @@ in  vec2  in_TexCoord;
 
 uniform mat4 projectionMatrix;
 uniform mat4 viewMatrix;
+uniform float time;
 
-out float shade;
+out vec3 vertNormal;
 
-void main(void)
-{
-	shade = (mat3(viewMatrix)*in_Normal).z; // Fake shading
-	gl_Position=projectionMatrix*viewMatrix*vec4(in_Position, 1.0);
+void main(void) {
+	vertNormal = in_Normal;
+	gl_Position = projectionMatrix*viewMatrix*vec4(in_Position * sin(time / 10), 1.0);
 }
-

@@ -4,7 +4,7 @@
 // You will also need GLEW for Windows. You may sometimes need to work around
 // differences, e.g. additions in MicroGlut that don't exist in FreeGlut.
 
-// 2015: 
+// 2015:
 
 // Linux: gcc lab0.c ../common/*.c ../common/Linux/MicroGlut.c -lGL -o lab0 -I../common -I../common/Linux
 
@@ -64,7 +64,7 @@ void init(void)
 	// Load and compile shader
 	program = loadShaders("lab0.vert", "lab0.frag");
 	printError("init shader");
-	
+
 	// Upload geometry to the GPU:
 	bunny = LoadModelPlus("objects/stanford-bunny.obj");
 	printError("load models");
@@ -85,14 +85,15 @@ void display(void)
 	//activate the program, and set its variables
 	glUseProgram(program);
 	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix.m);
+	glUniform1f(glGetUniformLocation(program, "time"), glutGet(GLUT_ELAPSED_TIME) / M_PI / 100.0);
 	mat4 m = Mult(viewMatrix, objectExampleMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(program, "viewMatrix"), 1, GL_TRUE, m.m);
 
 	//draw the model
 	DrawModel(bunny, program, "in_Position", "in_Normal", NULL);
-	
+
 	printError("display");
-	
+
 	glutSwapBuffers();
 }
 
@@ -102,10 +103,9 @@ int main(int argc, char *argv[])
 	glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH|GLUT_DOUBLE);
 	glutInitContextVersion(3, 2);
 	glutCreateWindow ("Lab 0 - OpenGL 3.2+ Introduction");
-	glutDisplayFunc(display); 
+	glutDisplayFunc(display);
 	glutRepeatingTimer(20);
 	init ();
 	glutMainLoop();
 	exit(0);
 }
-
