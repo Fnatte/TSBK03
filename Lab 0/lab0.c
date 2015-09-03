@@ -66,7 +66,7 @@ void init(void)
 	printError("init shader");
 
 	// Upload geometry to the GPU:
-	bunny = LoadModelPlus("objects/stanford-bunny.obj");
+	bunny = LoadModelPlus("objects/teapot.obj");
 	printError("load models");
 
 	// Load textures
@@ -102,15 +102,15 @@ void display(void)
 	//draw the model
 	mat4 m = Mult(viewMatrix, Mult(bunnyMatrix1, Rx(time)));
 	glUniformMatrix4fv(glGetUniformLocation(program, "viewMatrix"), 1, GL_TRUE, m.m);
-	DrawModel(bunny, program, "in_Position", "in_Normal", NULL);
+	DrawModel(bunny, program, "in_Position", "in_Normal", "in_TexCoord");
 
 	m = Mult(viewMatrix, Mult(bunnyMatrix2, Ry(time)));
 	glUniformMatrix4fv(glGetUniformLocation(program, "viewMatrix"), 1, GL_TRUE, m.m);
-	DrawModel(bunny, program, "in_Position", "in_Normal", NULL);
+	DrawModel(bunny, program, "in_Position", "in_Normal", "in_TexCoord");
 
 	m = Mult(viewMatrix, Mult(bunnyMatrix3, Rz(time)));
 	glUniformMatrix4fv(glGetUniformLocation(program, "viewMatrix"), 1, GL_TRUE, m.m);
-	DrawModel(bunny, program, "in_Position", "in_Normal", NULL);
+	DrawModel(bunny, program, "in_Position", "in_Normal", "in_TexCoord");
 
 	printError("display");
 	glutSwapBuffers();
