@@ -30,10 +30,10 @@ const int initWidth=512,initHeight=512;
 // Model-to-world matrix
 // Modify this matrix.
 // See below for how it is applied to your model.
-mat4 objectExampleMatrix = {{ 1.0, 0.0, 0.0, 0.0,
-                              0.0, 1.0, 0.0, 0.0,
-                              0.0, 0.0, 1.0, 0.0,
-                              0.0, 0.0, 0.0, 1.0}};
+mat4 bunnyMatrix1;
+mat4 bunnyMatrix2;
+mat4 bunnyMatrix3;
+
 // World-to-view matrix. Usually set by lookAt() or similar.
 mat4 viewMatrix;
 // Projection matrix, set by a call to perspective().
@@ -72,6 +72,11 @@ void init(void)
 	// Load textures
 	LoadTGATextureSimple("textures/maskros512.tga",&texture);
 	printError("load textures");
+
+
+	bunnyMatrix1 = IdentityMatrix();
+	bunnyMatrix2 = Mult(IdentityMatrix(), T(1, 0, 0));
+	bunnyMatrix3 = Mult(IdentityMatrix(), T(-1, 0, 0));
 }
 
 
@@ -87,10 +92,18 @@ void display(void)
 	glUseProgram(program);
 	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	glUniform1f(glGetUniformLocation(program, "time"), time);
-	mat4 m = Mult(viewMatrix, Mult(objectExampleMatrix, Rz(time)));
-	glUniformMatrix4fv(glGetUniformLocation(program, "viewMatrix"), 1, GL_TRUE, m.m);
 
 	//draw the model
+	mat4 m = Mult(viewMatrix, Mult(bunnyMatrix1, Rx(time)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "viewMatrix"), 1, GL_TRUE, m.m);
+	DrawModel(bunny, program, "in_Position", "in_Normal", NULL);
+
+	m = Mult(viewMatrix, Mult(bunnyMatrix2, Ry(time)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "viewMatrix"), 1, GL_TRUE, m.m);
+	DrawModel(bunny, program, "in_Position", "in_Normal", NULL);
+
+	m = Mult(viewMatrix, Mult(bunnyMatrix3, Rz(time)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "viewMatrix"), 1, GL_TRUE, m.m);
 	DrawModel(bunny, program, "in_Position", "in_Normal", NULL);
 
 	printError("display");
