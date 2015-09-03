@@ -84,11 +84,17 @@ void display(void)
 {
 	printError("pre display");
 	float time = glutGet(GLUT_ELAPSED_TIME) / M_PI / 100.0;
-
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-	//activate the program, and set its variables
+	// Lhe last argument has to be the same as the texture-unit that is to be used.
+	glUniform1i(glGetUniformLocation(program, "exampletexture"), 0);
+	// Which texture-unit is active.
+	glActiveTexture(GL_TEXTURE0);
+	// Load the texture to active texture-unit.
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	// Activate the program, and set its variables.
 	glUseProgram(program);
 	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	glUniform1f(glGetUniformLocation(program, "time"), time);
@@ -107,7 +113,6 @@ void display(void)
 	DrawModel(bunny, program, "in_Position", "in_Normal", NULL);
 
 	printError("display");
-
 	glutSwapBuffers();
 }
 

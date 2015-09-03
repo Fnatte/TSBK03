@@ -15,8 +15,10 @@ uniform mat4 viewMatrix;
 uniform float time;
 
 out vec3 vertNormal;
+out vec2 texCoord;
 
 void main(void) {
+	texCoord = in_TexCoord;
 	vertNormal = vec3(mat3(viewMatrix) * in_Normal);
 	gl_Position = projectionMatrix*viewMatrix*vec4(in_Position, 1.0);
 }
