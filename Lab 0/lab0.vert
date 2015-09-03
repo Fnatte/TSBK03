@@ -17,6 +17,6 @@ uniform float time;
 out vec3 vertNormal;
 
 void main(void) {
-	vertNormal = in_Normal;
-	gl_Position = projectionMatrix*viewMatrix*vec4(in_Position * sin(time / 10), 1.0);
+	vertNormal = vec3(mat3(viewMatrix) * in_Normal);
+	gl_Position = projectionMatrix*viewMatrix*vec4(in_Position, 1.0);
 }

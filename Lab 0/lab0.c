@@ -78,6 +78,7 @@ void init(void)
 void display(void)
 {
 	printError("pre display");
+	float time = glutGet(GLUT_ELAPSED_TIME) / M_PI / 100.0;
 
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -85,8 +86,8 @@ void display(void)
 	//activate the program, and set its variables
 	glUseProgram(program);
 	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix.m);
-	glUniform1f(glGetUniformLocation(program, "time"), glutGet(GLUT_ELAPSED_TIME) / M_PI / 100.0);
-	mat4 m = Mult(viewMatrix, objectExampleMatrix);
+	glUniform1f(glGetUniformLocation(program, "time"), time);
+	mat4 m = Mult(viewMatrix, Mult(objectExampleMatrix, Rz(time)));
 	glUniformMatrix4fv(glGetUniformLocation(program, "viewMatrix"), 1, GL_TRUE, m.m);
 
 	//draw the model
