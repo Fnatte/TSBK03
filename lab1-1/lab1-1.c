@@ -85,8 +85,11 @@ void init(void) {
 	plainTextureShader = loadShaders("plainTextureShader.vert", "plainTextureShader.frag");
   // renders with light (used for initial renderin of teapot)
 	phongShader = loadShaders("phong.vert", "phong.frag");
+	// Cuts down the color values by one.
+	truncationShader = loadShaders("truncation.vert", "truncation.frag");
 	// Does a low pass filter and renders a light texture
 	bloomShader = loadShaders("bloom.vert", "bloom.frag");
+
 
 	printError("init shader");
 
@@ -150,16 +153,25 @@ void display(void) {
 	DrawModel(model1, phongShader, "in_Position", "in_Normal", NULL);
 
 
+	// Truncate the values in the buffer
+	useFBO(bloomFBO, fbo1, 0L);
+	glUseProgram(truncationShader);
+
+	glUniform1f(glGetUniformLocation(truncationShader, "texSize"), W);
+	glUniform1i(glGetUniformLocation(truncationShader, "texUnit"), 0);
+	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
 
 	// Time to do some blooming
-	useFBO(bloomFBO, fbo1, 0L);
+	useFBO(bloomFBO, bloomFBO, 0L);
 	glUseProgram(bloomShader);
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glUniform1f(glGetUniformLocation(bloomShader, "texSize"), W);
-	glUniform1i(glGetUniformLocation(bloomShader, "texUnit"), 0);
+	glUniform1i(glGetUniformLocation(bloomShader, "texUnit"), 1);
 	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
+
+
 
 	// Done rendering the FBO! Set up for rendering on screen, using the result as texture!
 	//	glFlush(); // Can cause flickering on some systems. Can also be necessary to make drawing complete.
