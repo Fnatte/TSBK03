@@ -152,16 +152,14 @@ void display(void) {
 
 
 	// Time to do some blooming
-	useFBO(bloomFBO, 0L, 0L);
+	useFBO(bloomFBO, fbo1, 0L);
 	glUseProgram(bloomShader);
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	glUniform1f(glGetUniformLocation(phongShader, "texSize"), W);
-	glUniform1i(glGetUniformLocation(phongShader, "texUnit"), bloomFBO->texid);
+	glUniform1f(glGetUniformLocation(bloomShader, "texSize"), W);
+	glUniform1i(glGetUniformLocation(bloomShader, "texUnit"), 0);
 	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
-
-
 
 	// Done rendering the FBO! Set up for rendering on screen, using the result as texture!
 	//	glFlush(); // Can cause flickering on some systems. Can also be necessary to make drawing complete.
@@ -174,8 +172,8 @@ void display(void) {
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	glUniform1i(glGetUniformLocation(plainTextureShader, "image"), fbo1->texid);
-	glUniform1i(glGetUniformLocation(plainTextureShader, "bloom"), bloomFBO->texid);
+	glUniform1i(glGetUniformLocation(plainTextureShader, "image"), 0);
+	glUniform1i(glGetUniformLocation(plainTextureShader, "bloom"), 1);
 	DrawModel(squareModel, plainTextureShader, "in_Position", NULL, "in_TexCoord");
 
 
