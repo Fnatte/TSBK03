@@ -9,12 +9,14 @@ void main(void)
 {
 	float offset = 2.0 / texSize;
 
-	vec4 c = texture(texUnit, outTexCoord);
+	vec2 tc = outTexCoord;
+
+	vec4 c = texture(texUnit, tc);
 	tc.x = tc.x + offset;
-	vec4 l = texture(texUnit, outTexCoord);
+	vec4 l = texture(texUnit, tc);
 	tc.x = tc.x - 2.0 * offset;
-	vec4 r = texture(texUnit, outTexCoord);
+	vec4 r = texture(texUnit, tc);
 	tc.x = tc.x - offset;
 
-	out_Color = (c + c + l + r) * 0.25;
+	outColor = (c + c + l + r) * 0.25;
 }
