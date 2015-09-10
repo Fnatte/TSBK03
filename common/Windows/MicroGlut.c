@@ -190,14 +190,14 @@ void glutCreateWindow(char *title)
 	EnableOpenGL( hWnd, &hDC, &hRC );
 }
 
+BOOL gRunning = TRUE;
 
 void glutMainLoop()
 {
-	BOOL quit = 0;
 	MSG msg;
 	
 	// program main loop
-	while ( !quit )
+	while ( gRunning )
 	{
 		
 		// check for messages
@@ -206,7 +206,7 @@ void glutMainLoop()
 			// handle or dispatch messages
 			if ( msg.message == WM_QUIT ) 
 			{
-				quit = TRUE;
+				gRunning = FALSE;
 			} 
 			else 
 			{
@@ -392,7 +392,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	HDC hDC = NULL;
 	HGLRC hRC = NULL;
 //	MSG msg;
-	BOOL quit = FALSE;
+	BOOL gRunning = TRUE;
 	float theta = 0.0f;
 	
 	// register window class
@@ -544,4 +544,9 @@ void glutInitContextVersion(int major, int minor)
 {
 	gContextVersionMajor = major;
 	gContextVersionMinor = minor;
+}
+
+void glutExit()
+{
+	gRunning = 0;
 }

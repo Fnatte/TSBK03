@@ -317,7 +317,7 @@ void SaveFramebufferToTGA(char *filename, GLint x, GLint y, GLint w, GLint h)
 	glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, buffer);
 	err = SaveDataToTGA(filename, w, h, 
 			3*8, buffer);
-	free(buffer);
+//	free(buffer); already done
 	printf("SaveDataToTGA returned %d\n", err);
 }
 

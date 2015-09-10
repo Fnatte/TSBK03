@@ -2,13 +2,13 @@
 // by Ingemar Ragnemalm 2005, 2008
 // Developed with CodeWarrior and Lightweight IDE on Mac OS/Mac OSX
 
-// Assumes that gcc is set to -std=c99 (No, not any more.)
-
 // Extended version with LoadModelPlus
 // 120913: Revised LoadModelPlus/DrawModel by Jens.
 // Partially corrected formatting. (It is a mess!)
 // 130227: Error reporting in DrawModel
 // 130422: Added ScaleModel
+// 150909: Frees up temporary "Mesh" memory i LoadModel. Thanks to Simon Keisala for finding this!
+// Added DisposeModel. Limited the number of error printouts, thanks to Rasmus Hytter for this suggestion!
 
 #include "loadobj.h"
 #include <stdio.h>
@@ -33,8 +33,8 @@ typedef struct Mesh
 	int		*textureIndex;
 	int		coordCount; // Number of indices in each index struct
 	
-	int		*triangleCountList;
-	int		**vertexToTriangleTable;
+//	int		*triangleCountList;
+//	int		**vertexToTriangleTable;
 	
 	GLfloat radius; // Enclosing sphere
 	GLfloat radiusXZ; // For cylindrical tests
@@ -435,9 +435,9 @@ static struct Mesh * LoadOBJ(const char *filename)
 	theMesh->coordIndex = NULL;
 	theMesh->vertices = NULL;
 	// ProcessMesh may deal with these
-	theMesh->triangleCountList = NULL;
+//	theMesh->triangleCountList = NULL;
 	theMesh->vertexNormals = NULL;
-	theMesh->vertexToTriangleTable = NULL;
+//	theMesh->vertexToTriangleTable = NULL;
 	theMesh->textureCoords = NULL;
 	theMesh->textureIndex = NULL;
 	theMesh->normalsIndex = NULL;
@@ -811,6 +811,21 @@ Model* LoadModel(char* name)
 
 	model = generateModel(mesh);
 
+// Free the mesh!
+	if (mesh->vertices != NULL)
+		free(mesh->vertices);
+	if (mesh->vertexNormals != NULL)
+		free(mesh->vertexNormals);
+	if (mesh->textureCoords != NULL)
+		free(mesh->textureCoords);
+	if (mesh->coordIndex != NULL)
+		free(mesh->coordIndex);
+	if (mesh->normalsIndex != NULL)
+		free(mesh->normalsIndex);
+	if (mesh->textureIndex != NULL)
+		free(mesh->textureIndex);
+	free(mesh);
+	
 	return model;
 }
 
@@ -853,6 +868,23 @@ void ScaleModel(Model *m, float sx, float sy, float sz)
 	}
 }
 
+void ReportRerror(char *caller, char *name)
+{
+	static unsigned int draw_error_counter = 0; 
+	// Report error - but not more than NUM_DRAWMODEL_ERROR
+   if(draw_error_counter < NUM_DRAWMODEL_ERROR)
+   {
+		    fprintf(stderr, "%s warning: '%s' not found in shader!\n", caller, name);
+		    draw_error_counter++;
+   }
+   else if(draw_error_counter == NUM_DRAWMODEL_ERROR)
+   {
+		    fprintf(stderr, "%s: Number of error bigger than %i. No more vill be printed.\n", caller, NUM_DRAWMODEL_ERROR);
+		    draw_error_counter++;
+   }
+}
+
+
 // NEW for lab 2 2012
 // Modified 2013, to do decent error reporting
 // This code makes a lot of calls for rebinding variables just in case,
@@ -875,7 +907,7 @@ void DrawModel(Model *m, GLuint program, char* vertexVariableName, char* normalV
 			glEnableVertexAttribArray(loc);
 		}
 		else
-			fprintf(stderr, "DrawModel warning: '%s' not found in shader!\n", vertexVariableName);
+			ReportRerror("DrawModel", vertexVariableName);
 		
 		if (normalVariableName!=NULL)
 		{
@@ -887,7 +919,7 @@ void DrawModel(Model *m, GLuint program, char* vertexVariableName, char* normalV
 				glEnableVertexAttribArray(loc);
 			}
 			else
-				fprintf(stderr, "DrawModel warning: '%s' not found in shader!\n", normalVariableName);
+				ReportRerror("DrawModel", normalVariableName);
 		}
 	
 		// VBO for texture coordinate data NEW for 5b
@@ -901,7 +933,7 @@ void DrawModel(Model *m, GLuint program, char* vertexVariableName, char* normalV
 				glEnableVertexAttribArray(loc);
 			}
 			else
-				fprintf(stderr, "DrawModel warning: '%s' not found in shader!\n", texCoordVariableName);
+				ReportRerror("DrawModel", texCoordVariableName);
 		}
 
 		glDrawElements(GL_TRIANGLES, m->numIndices, GL_UNSIGNED_INT, 0L);
@@ -924,7 +956,7 @@ void DrawWireframeModel(Model *m, GLuint program, char* vertexVariableName, char
 			glEnableVertexAttribArray(loc);
 		}
 		else
-			fprintf(stderr, "DrawWireframeModel warning: '%s' not found in shader!\n", vertexVariableName);
+			ReportRerror("DrawWireframeModel", vertexVariableName);
 		
 		if (normalVariableName!=NULL)
 		{
@@ -936,7 +968,7 @@ void DrawWireframeModel(Model *m, GLuint program, char* vertexVariableName, char
 				glEnableVertexAttribArray(loc);
 			}
 			else
-				fprintf(stderr, "DrawWireframeModel warning: '%s' not found in shader!\n", normalVariableName);
+				ReportRerror("DrawWireframeModel", normalVariableName);
 		}
 	
 		// VBO for texture coordinate data NEW for 5b
@@ -950,7 +982,7 @@ void DrawWireframeModel(Model *m, GLuint program, char* vertexVariableName, char
 				glEnableVertexAttribArray(loc);
 			}
 			else
-				fprintf(stderr, "DrawWireframeModel warning: '%s' not found in shader!\n", texCoordVariableName);
+				ReportRerror("DrawWireframeModel", texCoordVariableName);
 		}
 		glDrawElements(GL_LINE_STRIP, m->numIndices, GL_UNSIGNED_INT, 0L);
 	}
@@ -1042,4 +1074,30 @@ Model* LoadDataToModel(
 	ReloadModelData(m);
 	
 	return m;
+}
+
+// Cleanup function, not tested!
+void DisposeModel(Model *m)
+{
+	if (m != NULL)
+	{
+		if (m->vertexArray != NULL)
+			free(m->vertexArray);
+		if (m->normalArray != NULL)
+			free(m->normalArray);
+		if (m->texCoordArray != NULL)
+			free(m->texCoordArray);
+		if (m->colorArray != NULL) // obsolete?
+			free(m->colorArray);
+		if (m->indexArray != NULL)
+			free(m->indexArray);
+			
+		// Lazy error checking heter since "glDeleteBuffers silently ignores 0's and names that do not correspond to existing buffer objects."
+		glDeleteBuffers(1, &m->vb);
+		glDeleteBuffers(1, &m->ib);
+		glDeleteBuffers(1, &m->nb);
+		glDeleteBuffers(1, &m->tb);
+		glDeleteBuffers(1, &m->vao);
+	}
+	free(m);
 }

@@ -28,6 +28,7 @@
 // 150302: Window position, multisample, even better config
 // 150618: Added glutMouseIsDown() (not in the old GLUT API but a nice extension!).
 // Added #ifdefs to produce errors if compiled on the wrong platform!
+// 150909: Added glutExit.
 
 #define _BSD_SOURCE
 #include <math.h>
@@ -48,9 +49,12 @@
 #define M_PI 3.14159265
 #endif
 
-// If this is compiled on the Mac, tell me!
+// If this is compiled on the Mac or Windows, tell me!
 #ifdef __APPLE__
 	ERROR! This is NOT the Mac version of MicroGlut and will not work on the Mac!
+#endif
+#ifdef _WIN32
+	ERROR! This is NOT the Windows version of MicroGlut and will not work on Windows!
 #endif
 
 unsigned int winWidth = 300, winHeight = 300;
@@ -68,6 +72,7 @@ char animate = 1; // Use for glutNeedsRedisplay?
 struct timeval timeStart;
 static Atom wmDeleteMessage; // To handle delete msg
 char gKeymap[256];
+char gRunning = 1;
 
 void glutInit(int *argc, char *argv[])
 {
@@ -356,14 +361,13 @@ void glutMainLoop()
 {
 	char buffer[10];
 	int r; // code;
-	char done = 0;
 
 	char pressed = 0;
 	int i;
 
 	XAllowEvents(dpy, AsyncBoth, CurrentTime);
 
-	while (!done)
+	while (gRunning)
 	{
       int op = 0;
       while (XPending(dpy) > 0)
@@ -375,7 +379,7 @@ void glutMainLoop()
          {
          	case ClientMessage:
          		if (event.xclient.data.l[0] == wmDeleteMessage) // quit!
-         			done = 1;
+         			gRunning = 0;
 	         	break;
          	case Expose: 
 			op = 1; break; // Update event! Should do draw here.
@@ -656,4 +660,8 @@ void glutToggleFullScreen()
 		glutFullScreen();
 }
 
+void glutExit()
+{
+	gRunning = 0;
+}
 

@@ -14,6 +14,9 @@ extern "C" {
 	#include <GL/gl.h>
 #endif
 
+// How many error messages do you want before it stops?
+#define NUM_DRAWMODEL_ERROR 8
+
 typedef struct
 {
   GLfloat* vertexArray;
@@ -53,6 +56,7 @@ void ReloadModelData(Model *m);
 
 void CenterModel(Model *m);
 void ScaleModel(Model *m, float sx, float sy, float sz);
+void DisposeModel(Model *m);
 
 #ifdef __cplusplus
 }

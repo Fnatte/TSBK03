@@ -5,9 +5,12 @@
 extern "C" {
 #endif
 
-// If this is compiled on the Mac, tell me!
+// If this is compiled on the Mac or Windows, tell me!
 #ifdef __APPLE__
 	ERROR! This is NOT the Mac version of MicroGlut and will not work on the Mac!
+#endif
+#ifdef _WIN32
+	ERROR! This is NOT the Windows version of MicroGlut and will not work on Windows!
 #endif
 
 // Same or similar to old GLUT calls
@@ -58,6 +61,7 @@ void glutInitContextVersion(int major, int minor);
 void glutFullScreen();
 void glutExitFullScreen();
 void glutToggleFullScreen();
+void glutExit();
 
 /* Mouse buttons. */
 #define GLUT_LEFT_BUTTON		0

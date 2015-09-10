@@ -670,7 +670,7 @@ void home()
 }
 @end
 
-MGApplication *myApp;
+NSApplication *myApp;
 NSView *view;
 NSAutoreleasePool *pool;
 NSWindow *window;
