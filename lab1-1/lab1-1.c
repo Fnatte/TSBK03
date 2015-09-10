@@ -65,8 +65,8 @@ Model* squareModel;
 //----------------------Globals-------------------------------------------------
 Point3D cam, point;
 Model *model1;
-FBOstruct *fbo1, *fbo2;
-GLuint phongshader = 0, plaintextureshader = 0;
+FBOstruct *fbo1, *bloomFBO;
+GLuint phongShader = 0, plainTextureShader = 0, bloomShader = 0;
 
 //-------------------------------------------------------------------------------------
 
@@ -82,14 +82,16 @@ void init(void) {
 
 	// Load and compile shaders
   // puts texture on teapot
-	plaintextureshader = loadShaders("plaintextureshader.vert", "plaintextureshader.frag");
+	plainTextureShader = loadShaders("plainTextureShader.vert", "plainTextureShader.frag");
   // renders with light (used for initial renderin of teapot)
-	phongshader = loadShaders("phong.vert", "phong.frag");
+	phongShader = loadShaders("phong.vert", "phong.frag");
+	// Does a low pass filter and renders a light texture
+	bloomShader = loadShaders("bloom.vert", "bloom.frag");
 
 	printError("init shader");
 
 	fbo1 = initFBO(W, H, 0);
-	fbo2 = initFBO(W, H, 0);
+	bloomFBO = initFBO(W, H, 0);
 
 	// load the model
 	//	model1 = LoadModelPlus("teapot.obj");
@@ -128,17 +130,17 @@ void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Activate shader program
-	glUseProgram(phongshader);
+	glUseProgram(phongShader);
 
 	vm2 = viewMatrix;
 	// Scale and place bunny since it is too small
 	vm2 = Mult(vm2, T(0, -8.5, 0));
 	vm2 = Mult(vm2, S(80,80,80));
 
-	glUniformMatrix4fv(glGetUniformLocation(phongshader, "projectionMatrix"), 1, GL_TRUE, projectionMatrix.m);
-	glUniformMatrix4fv(glGetUniformLocation(phongshader, "modelviewMatrix"), 1, GL_TRUE, vm2.m);
-	glUniform3fv(glGetUniformLocation(phongshader, "camPos"), 1, &cam.x);
-	glUniform1i(glGetUniformLocation(phongshader, "texUnit"), 0);
+	glUniformMatrix4fv(glGetUniformLocation(phongShader, "projectionMatrix"), 1, GL_TRUE, projectionMatrix.m);
+	glUniformMatrix4fv(glGetUniformLocation(phongShader, "modelviewMatrix"), 1, GL_TRUE, vm2.m);
+	glUniform3fv(glGetUniformLocation(phongShader, "camPos"), 1, &cam.x);
+	glUniform1i(glGetUniformLocation(phongShader, "texUnit"), 0);
 
 	// Enable Z-buffering
 	glEnable(GL_DEPTH_TEST);
@@ -146,21 +148,26 @@ void display(void) {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
-	DrawModel(model1, phongshader, "in_Position", "in_Normal", NULL);
+	DrawModel(model1, phongShader, "in_Position", "in_Normal", NULL);
+
+
+	// Time to do some blooming
+	useFBO(bloomFBO, 0L, 0L);
+	glUseProgram(bloomShader);
+
 
 	// Done rendering the FBO! Set up for rendering on screen, using the result as texture!
-
 	//	glFlush(); // Can cause flickering on some systems. Can also be necessary to make drawing complete.
 	useFBO(0L, fbo1, 0L);
 	glClearColor(0.0, 0.0, 0.0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Activate second shader program
-	glUseProgram(plaintextureshader);
+	glUseProgram(plainTextureShader);
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	DrawModel(squareModel, plaintextureshader, "in_Position", NULL, "in_TexCoord");
+	DrawModel(squareModel, plainTextureShader, "in_Position", NULL, "in_TexCoord");
 
 	glutSwapBuffers();
 }
