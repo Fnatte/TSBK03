@@ -66,7 +66,7 @@ Model* squareModel;
 Point3D cam, point;
 Model *model1;
 FBOstruct *fbo1, *bloomFBO;
-GLuint phongShader = 0, plainTextureShader = 0, bloomShader = 0;
+GLuint phongShader = 0, plainTextureShader = 0, bloomShader = 0, truncationShader = 0;
 
 //-------------------------------------------------------------------------------------
 
