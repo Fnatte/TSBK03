@@ -151,10 +151,6 @@ void display(void) {
 	DrawModel(model1, phongShader, "in_Position", "in_Normal", NULL);
 
 
-	// Time to do some blooming
-	useFBO(bloomFBO, 0L, 0L);
-	glUseProgram(bloomShader);
-
 
 	// Done rendering the FBO! Set up for rendering on screen, using the result as texture!
 	//	glFlush(); // Can cause flickering on some systems. Can also be necessary to make drawing complete.
@@ -168,6 +164,18 @@ void display(void) {
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	DrawModel(squareModel, plainTextureShader, "in_Position", NULL, "in_TexCoord");
+
+
+	// Time to do some blooming
+	useFBO(0L, fbo1, 0L);
+	glClearColor(0.0, 0.0, 0.0, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glUseProgram(bloomShader);
+
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
+
 
 	glutSwapBuffers();
 }
