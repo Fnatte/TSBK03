@@ -147,7 +147,6 @@ void display(void) {
 	// Enable backface culling
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
-	glUniform1i(glGetUniformLocation(phongShader, "texUnit"), 0);
 	DrawModel(model1, phongShader, "in_Position", "in_Normal", NULL);
 
 
@@ -159,7 +158,7 @@ void display(void) {
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glUniform1f(glGetUniformLocation(phongShader, "texSize"), W);
-	glUniform1i(glGetUniformLocation(phongShader, "texUnit"), fbo1->texid);
+	glUniform1i(glGetUniformLocation(phongShader, "texUnit"), bloomFBO->texid);
 	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
 
 
@@ -175,6 +174,8 @@ void display(void) {
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
+	glUniform1i(glGetUniformLocation(plainTextureShader, "image"), fbo1->texid);
+	glUniform1i(glGetUniformLocation(plainTextureShader, "bloom"), bloomFBO->texid);
 	DrawModel(squareModel, plainTextureShader, "in_Position", NULL, "in_TexCoord");
 
 
