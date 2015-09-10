@@ -169,7 +169,7 @@ void display(void) {
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glUniform1f(glGetUniformLocation(bloomShader, "texSize"), W);
-	glUniform1i(glGetUniformLocation(bloomShader, "texUnit"), 1);
+	glUniform1i(glGetUniformLocation(bloomShader, "texUnit"), 0);
 	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
 
 
