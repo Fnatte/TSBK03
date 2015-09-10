@@ -178,6 +178,12 @@ void display(void) {
 	glUniform1i(glGetUniformLocation(bloomShader, "texUnit"), 0);
 	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
 
+	useFBO(bloomFBO, bloomFBO, 0L);
+	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
+	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
+	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
+	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
+	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
 
 	// Done rendering the FBO! Set up for rendering on screen, using the result as texture!
 	//	glFlush(); // Can cause flickering on some systems. Can also be necessary to make drawing complete.
