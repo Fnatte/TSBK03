@@ -12,23 +12,23 @@
 
 #ifdef __APPLE__
 // Mac
-	#include <OpenGL/gl3.h>
-	#include "MicroGlut.h"
-	// uses framework Cocoa
+#include <OpenGL/gl3.h>
+#include "MicroGlut.h"
+// uses framework Cocoa
 #else
-	#ifdef WIN32
+#ifdef WIN32
 // MS
-		#include <windows.h>
-		#include <stdio.h>
-		#include <GL/glew.h>
-		#include <GL/glut.h>
-	#else
+#include <windows.h>
+#include <stdio.h>
+#include <GL/glew.h>
+#include <GL/glut.h>
+#else
 // Linux
-		#include <stdio.h>
-		#include <GL/gl.h>
-		#include "MicroGlut.h"
+#include <stdio.h>
+#include <GL/gl.h>
+#include "MicroGlut.h"
 //		#include <GL/glut.h>
-	#endif
+#endif
 #endif
 
 #include "VectorUtils3.h"
@@ -49,15 +49,15 @@ mat4 viewMatrix;
 
 
 GLfloat square[] = {
-							-1,-1,0,
-							-1,1, 0,
-							1,1, 0,
-							1,-1, 0};
+	-1,-1,0,
+	-1,1, 0,
+	1,1, 0,
+	1,-1, 0};
 GLfloat squareTexCoord[] = {
-							 0, 0,
-							 0, 1,
-							 1, 1,
-							 1, 0};
+	0, 0,
+	0, 1,
+	1, 1,
+	1, 0};
 GLuint squareIndices[] = {0, 1, 2, 0, 2, 3};
 
 Model* squareModel;
@@ -70,8 +70,7 @@ GLuint phongshader = 0, plaintextureshader = 0;
 
 //-------------------------------------------------------------------------------------
 
-void init(void)
-{
+void init(void) {
 	dumpInfo();  // shader info
 
 	// GL inits
@@ -82,8 +81,10 @@ void init(void)
 	printError("GL inits");
 
 	// Load and compile shaders
-	plaintextureshader = loadShaders("plaintextureshader.vert", "plaintextureshader.frag");  // puts texture on teapot
-	phongshader = loadShaders("phong.vert", "phong.frag");  // renders with light (used for initial renderin of teapot)
+  // puts texture on teapot
+	plaintextureshader = loadShaders("plaintextureshader.vert", "plaintextureshader.frag");
+  // renders with light (used for initial renderin of teapot)
+	phongshader = loadShaders("phong.vert", "phong.frag");
 
 	printError("init shader");
 
@@ -91,12 +92,12 @@ void init(void)
 	fbo2 = initFBO(W, H, 0);
 
 	// load the model
-//	model1 = LoadModelPlus("teapot.obj");
+	//	model1 = LoadModelPlus("teapot.obj");
 	model1 = LoadModelPlus("stanford-bunny.obj");
 
 	squareModel = LoadDataToModel(
-			square, NULL, squareTexCoord, NULL,
-			squareIndices, 4, 6);
+																square, NULL, squareTexCoord, NULL,
+																squareIndices, 4, 6);
 
 	cam = SetVector(0, 5, 15);
 	point = SetVector(0, 1, 0);
@@ -106,17 +107,15 @@ void init(void)
 	zprInit(&viewMatrix, cam, point);
 }
 
-void OnTimer(int value)
-{
+void OnTimer(int value) {
 	glutPostRedisplay();
 	glutTimerFunc(5, &OnTimer, value);
 }
 
 //-------------------------------callback functions------------------------------------------
-void display(void)
-{
+void display(void) {
 	mat4 vm2;
-	
+
 	// This function is called whenever it is time to render
 	//  a new frame; due to the idle()-function below, this
 	//  function will get called several times per second
@@ -151,7 +150,7 @@ void display(void)
 
 	// Done rendering the FBO! Set up for rendering on screen, using the result as texture!
 
-//	glFlush(); // Can cause flickering on some systems. Can also be necessary to make drawing complete.
+	//	glFlush(); // Can cause flickering on some systems. Can also be necessary to make drawing complete.
 	useFBO(0L, fbo1, 0L);
 	glClearColor(0.0, 0.0, 0.0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -166,8 +165,7 @@ void display(void)
 	glutSwapBuffers();
 }
 
-void reshape(GLsizei w, GLsizei h)
-{
+void reshape(GLsizei w, GLsizei h) {
 	glViewport(0, 0, w, h);
 	GLfloat ratio = (GLfloat) w / (GLfloat) h;
 	projectionMatrix = perspective(90, ratio, 1.0, 1000);
@@ -177,14 +175,12 @@ void reshape(GLsizei w, GLsizei h)
 // This function is called whenever the computer is idle
 // As soon as the machine is idle, ask GLUT to trigger rendering of a new
 // frame
-void idle()
-{
+void idle() {
   glutPostRedisplay();
 }
 
 //-----------------------------main-----------------------------------------------
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	glutInit(&argc, argv);
 
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
@@ -200,4 +196,3 @@ int main(int argc, char *argv[])
 	glutMainLoop();
 	exit(0);
 }
-
