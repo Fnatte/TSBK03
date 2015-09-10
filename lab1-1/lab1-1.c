@@ -65,7 +65,7 @@ Model* squareModel;
 //----------------------Globals-------------------------------------------------
 Point3D cam, point;
 Model *model1;
-FBOstruct *fbo1, *bloomFBO;
+FBOstruct *fbo1, *bloomFBO, *truncationFBO;
 GLuint phongShader = 0, plainTextureShader = 0, bloomShader = 0, truncationShader = 0;
 
 //-------------------------------------------------------------------------------------
@@ -94,6 +94,7 @@ void init(void) {
 	printError("init shader");
 
 	fbo1 = initFBO(W, H, 0);
+	truncationFBO = initFBO(W, H, 0);
 	bloomFBO = initFBO(W, H, 0);
 
 	// load the model
@@ -154,15 +155,15 @@ void display(void) {
 
 
 	// Truncate the values in the buffer
-	useFBO(bloomFBO, fbo1, 0L);
+	useFBO(truncationFBO, fbo1, 0L);
 	glUseProgram(truncationShader);
 
 	glUniform1f(glGetUniformLocation(truncationShader, "texSize"), W);
 	glUniform1i(glGetUniformLocation(truncationShader, "texUnit"), 0);
-	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
+	DrawModel(squareModel, truncationShader, "in_Position", NULL, "in_TexCoord");
 
 	// Time to do some blooming
-	useFBO(bloomFBO, bloomFBO, 0L);
+	useFBO(bloomFBO, truncationFBO, 0L);
 	glUseProgram(bloomShader);
 
 	glDisable(GL_CULL_FACE);
