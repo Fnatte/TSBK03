@@ -157,14 +157,19 @@ void display(void) {
 	// Truncate the values in the buffer
 	useFBO(truncationFBO, fbo1, 0L);
 	glUseProgram(truncationShader);
+	glClearColor(0.0, 0.0, 0.0, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUniform1f(glGetUniformLocation(truncationShader, "texSize"), W);
 	glUniform1i(glGetUniformLocation(truncationShader, "texUnit"), 0);
 	DrawModel(squareModel, truncationShader, "in_Position", NULL, "in_TexCoord");
 
+
 	// Time to do some blooming
 	useFBO(bloomFBO, truncationFBO, 0L);
 	glUseProgram(bloomShader);
+	glClearColor(0.0, 0.0, 0.0, 0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
