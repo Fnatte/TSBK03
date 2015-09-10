@@ -160,6 +160,9 @@ void display(void) {
 	glClearColor(0.0, 0.0, 0.0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+
 	glUniform1f(glGetUniformLocation(truncationShader, "texSize"), W);
 	glUniform1i(glGetUniformLocation(truncationShader, "texUnit"), 0);
 	DrawModel(squareModel, truncationShader, "in_Position", NULL, "in_TexCoord");
@@ -171,12 +174,9 @@ void display(void) {
 	glClearColor(0.0, 0.0, 0.0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
 	glUniform1f(glGetUniformLocation(bloomShader, "texSize"), W);
 	glUniform1i(glGetUniformLocation(bloomShader, "texUnit"), 0);
 	DrawModel(squareModel, bloomShader, "in_Position", NULL, "in_TexCoord");
-
 
 
 	// Done rendering the FBO! Set up for rendering on screen, using the result as texture!
@@ -184,12 +184,8 @@ void display(void) {
 	useFBO(0L, fbo1, bloomFBO);
 	glClearColor(0.0, 0.0, 0.0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Activate second shader program
 	glUseProgram(plainTextureShader);
 
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
 	glUniform1i(glGetUniformLocation(plainTextureShader, "image"), 0);
 	glUniform1i(glGetUniformLocation(plainTextureShader, "bloom"), 1);
 	DrawModel(squareModel, plainTextureShader, "in_Position", NULL, "in_TexCoord");
