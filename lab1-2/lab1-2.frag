@@ -17,9 +17,14 @@ void main(void)
 
 	// Calculate gradients here
 	float offset = 1.0 / 256.0; // texture size, same in both directions
+	float deltaX = (texture(texUnit, vec2(outTexCoord.x + offset, outTexCoord.y)) -
+	                texture(texUnit, vec2(outTexCoord.x - offset, outTexCoord.y))) * 2;
+	float deltaY = (texture(texUnit, vec2(outTexCoord.x, outTexCoord.y + offset)) -
+	                texture(texUnit, vec2(outTexCoord.x, outTexCoord.y - offset))) * 2;
 
-	vec3 normal = normalize(out_Normal);
+
+	vec3 normal = normalize(out_Normal - deltaX * Ps - deltaY * Pt);
 	// Simplified lighting calculation.
 	// A full solution would include material, ambient, specular, light sources, multiply by texture.
-	out_Color = vec4( dot(normal, light)) * texture(texUnit, outTexCoord);
+	out_Color = vec4( dot(normal, light));
 }
