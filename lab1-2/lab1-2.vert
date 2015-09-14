@@ -17,12 +17,12 @@ out vec3 pixPos;  // Needed for specular reflections
 
 void main(void)
 {
-    outTexCoord = in_TexCoord;
-    out_Normal = mat3(viewMatrix) * in_Normal; // Cheated normal matrix, OK with no non-uniform scaling
-    pixPos = vec3(viewMatrix * vec4(in_Position, 1.0));
+	outTexCoord = in_TexCoord;
+	out_Normal = mat3(viewMatrix) * in_Normal; // Cheated normal matrix, OK with no non-uniform scaling
+	pixPos = vec3(viewMatrix * vec4(in_Position, 1.0));
 
-    Ps = normalize( mat3(viewMatrix) * Vs );
-    Pt = normalize( mat3(viewMatrix) * Vt );
+	Ps = normalize( mat3(viewMatrix) * Vs );
+	Pt = normalize( mat3(viewMatrix) * Vt );
 
-    gl_Position = projMatrix * viewMatrix * vec4(in_Position, 1.0);
+	gl_Position = projMatrix * viewMatrix * vec4(in_Position, 1.0);
 }
