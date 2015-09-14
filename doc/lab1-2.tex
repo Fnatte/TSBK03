@@ -1,0 +1,28 @@
+% -*- compile-command: "pdflatex lab1-2.tex"; -*-
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\begin{document}
+
+\section{Bump mapping}
+
+\begin{itemize}
+  \item Vilken bumpmappning tycker du är att föredra, vykoordinater eller texturkoordinater? Varför? Vad är skillnaden mellan att arbeta i vy- och texturkoordinater? Vilken bumpmappning (2a eller 2b) är lämplig för normalmapping?
+
+    Vi tycker att bumpmapping 2b är att föredra då man per frame kan kalkylera transformationsmatrisen från vy till texturkoordinater mvt och på så sätt undvika onödiga beräkningar.
+
+  \item Definierar du bumpmappen som avstånd in i eller ut ur objektet? Var spelar det in?
+
+    Bumpmapen går både in och ut då grundnivån i bumpmapen är halvvägs mellan vitt och svart.
+
+  \item Blev Mvt rätt med mat3 i 2b? Om inte, vad gjorde du åt det?
+
+    Vi transponerade den, det blev bra då.
+
+\end{itemize}
+
+
+\end{document}

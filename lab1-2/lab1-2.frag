@@ -22,9 +22,8 @@ void main(void)
 	float deltaY = (texture(texUnit, vec2(outTexCoord.x, outTexCoord.y + offset)) -
 	                texture(texUnit, vec2(outTexCoord.x, outTexCoord.y - offset))) * 2;
 
+	vec3 normal = normalize(vec3(-deltaX, -deltaY, 1));
+	mat3 mvt = transpose(mat3(Ps, Pt, out_Normal));
 
-	vec3 normal = normalize(out_Normal - deltaX * Ps - deltaY * Pt);
-	// Simplified lighting calculation.
-	// A full solution would include material, ambient, specular, light sources, multiply by texture.
-	out_Color = vec4( dot(normal, light));
+	out_Color = vec4(dot(normal, mvt * light));
 }
