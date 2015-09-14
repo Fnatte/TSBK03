@@ -21,5 +21,5 @@ void main(void)
 	tc.y = tc.y - 2.0 * offset;
 	vec4 b = texture(texUnit, tc);
 
-	outColor = (c + c + l + r + t + b) * vec4(0.25, 0, 0, 0);
+	outColor = (c + c + l + r + t + b) * vec4(0.166, 0, 0, 0);
 }
