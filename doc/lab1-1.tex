@@ -1,0 +1,34 @@
+% -*- compile-command: "pdflatex lab1-1.tex"; -*-
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\begin{document}
+
+\section{Blooming med high dynamic range}
+
+\begin{itemize}
+  \item Hur ser högdagrarna ut i 1a?
+
+    Dom är väldigt väldigt begränsade, de är absolut vita med hårda kanter.
+
+  \item Hur allokerar man en tom textur?
+
+    glGenTextures(1, id);\\
+    glClearColor(0.0, 0.0, 0.0, 0);\\
+    glClear(GL\_COLOR\_BUFFER\_BIT);
+
+  \item Hur många pass körde du lågpassfiltret i 1c och 1d?
+
+    Fem gånger.
+
+  \item Bör trunkeringen göras i egen shader eller som del av en shader som gör något mer?
+
+    Det är lite valfritt. Men vi har gjort det i en egen shader, vi tyckte att det blev enklare så. Det finns också den anledningen att vi kör våran lågpassfiltersshader flera gånger om, hade vi kombinerat trunkeringen med lågpassfiltret så hade utdatan trunkerats var iteration av den. Vidare finns det goda anledningar att hålla shaderkärnor korta, t.ex. att minnet på GPU:n för programkod är begränsad samt att man lätt oavsiktligt skriver kod med branches i sig om man skriver långa shaderprogram.
+
+\end{itemize}
+
+
+\end{document}
