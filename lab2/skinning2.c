@@ -86,31 +86,12 @@ mat4 modelToBone[2];
 mat4 boneToModel[2];
 mat4 boneTransforms[2];
 
-void CalculateTransforms() {
-	mat4 previousTransform = IdentityMatrix();
-	for(int i = 0; i < 2; i++) {
-		boneToModel[i] = Mult(
-			T(g_bones[i].pos.x, g_bones[i].pos.y, g_bones[i].pos.z),
-			g_bones[i].rot
-		);
-		boneTransforms[i] = Mult(
-			Mult(boneToModel[i], previousTransform),
-			modelToBone[i]
-		);
-		previousTransform = boneTransforms[i];
-	}
-}
-
-void UploadTransforms() {
-	glUniformMatrix4fv(glGetUniformLocation(g_shader, "boneTransforms"), 2, GL_TRUE, boneTransforms);
-}
 
 ///////////////////////////////////////////////////
 //		I N I T  B O N E  W E I G H T S
 // Desc:  initierar benvikterna
 //
-void initBoneWeights(void)
-{
+void initBoneWeights(void) {
 	long	row, corner;
 	int bone;
 
@@ -230,8 +211,7 @@ void BuildCylinder()
 //			pos-vektor och en rot-vektor
 //			rot vektorn skulle lika gärna
 //			kunna vara av 3x3 men VectorUtils2 har bara 4x4
-typedef struct Bone
-{
+typedef struct Bone {
   vec3 pos;
   mat4 rot;
 } Bone;
@@ -247,17 +227,40 @@ Bone g_bonesRes[kMaxBones]; // Animerat
 ///////////////////////////////////////////////////////
 //		S E T U P  B O N E S
 //
-void setupBones(void)
-{
+void setupBones(void) {
 	int bone;
 
   for (bone = 0; bone < kMaxBones; bone++)
 		{
 			g_bones[bone].pos = SetVector((float) bone * BONE_LENGTH, 0.0f, 0.0f);
 			g_bones[bone].rot = IdentityMatrix();
+			modelToBone[bone] =
+				InvertMat4(
+									 Mult(
+												T(g_bones[bone].pos.x, g_bones[bone].pos.y, g_bones[bone].pos.z),
+												g_bones[bone].rot
+												));
 		}
 }
 
+void CalculateTransforms() {
+	mat4 previousTransform = IdentityMatrix();
+	for(int i = 0; i < kMaxBones; i++) {
+		boneToModel[i] = Mult(
+			T(g_bones[i].pos.x, g_bones[i].pos.y, g_bones[i].pos.z),
+			g_bones[i].rot
+		);
+		boneTransforms[i] = Mult(
+			Mult(boneToModel[i], previousTransform),
+			modelToBone[i]
+		);
+		previousTransform = boneTransforms[i];
+	}
+}
+
+void UploadTransforms() {
+	glUniformMatrix4fv(glGetUniformLocation(g_shader, "boneTransforms"), 2, GL_TRUE, boneTransforms);
+}
 
 ///////////////////////////////////////////////////////
 //		D E F O R M  C Y L I N D E R
@@ -341,6 +344,8 @@ void DrawCylinder() {
   // begynelsen till shader koden ligger i filen "ShaderCode.vert" ...
   //
 
+	CalculateTransforms();
+	UploadTransforms();
   DeformCylinder();
 
   // setBoneLocation();
