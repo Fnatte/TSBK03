@@ -65,7 +65,8 @@ Point3D g_normalsRes[kMaxRow][kMaxCorners];
 // vertex attributes sent to OpenGL
 Point3D g_boneWeights[kMaxRow][kMaxCorners];
 
-float weight[kMaxRow] = {0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+// float weight[kMaxRow] = {0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+float weight[kMaxRow] = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9};
 
 Model *cylinderModel; // Collects all the above for drawing with glDrawElements
 
@@ -237,6 +238,7 @@ void DeformCylinder()
 			//
 			// row traverserar i cylinderns längdriktning,
 			// corner traverserar "runt" cylindern
+
 			g_vertsRes[row][corner] = SetVector(0,0,0);
 			int boneIndex = weight[row] == 0.0 ? 0 : 1;
 			g_vertsRes[row][corner] = VectorAdd(
@@ -254,6 +256,24 @@ void DeformCylinder()
 			// g_boneWeights innehåller blendvikter för benen.
 			// g_vertsOrg innehåller ursprunglig vertexdata.
 			// g_vertsRes innehåller den vertexdata som skickas till OpenGL.
+
+			g_vertsRes[row][corner] = SetVector(0,0,0);
+			for(int i = 0; i < 2; i++) {
+				float weight;
+				if (i == 0)
+					weight = g_boneWeights[row][corner].x;
+				else
+					weight = g_boneWeights[row][corner].y;
+
+				vec3 w = g_boneWeights[row][corner]; 
+				g_vertsRes[row][corner] = VectorAdd(
+					ScalarMult(
+						MultVec3(boneTransforms[i], g_vertsOrg[row][corner]),
+						weight
+					),
+					g_vertsRes[row][corner]
+				);
+			}
 
 		}
 	}
