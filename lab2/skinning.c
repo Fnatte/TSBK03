@@ -74,6 +74,9 @@ mat4 modelViewMatrix, projectionMatrix;
 
 mat4 modelToBone[2];
 
+mat4 boneToModel[2];
+mat4 boneTransforms[2];
+
 ///////////////////////////////////////////////////
 //		B U I L D	C Y L I N D E R
 // Desc:	bygger upp cylindern
@@ -189,22 +192,10 @@ void setupBones(void)
 				g_bones[i].rot
 			)
 		);
-	}	
+	}
 }
 
-
-///////////////////////////////////////////////////////
-//		D E F O R M	C Y L I N D E R
-//
-// Desc:	deformera cylindermeshen enligt skelettet
-void DeformCylinder()
-{
-	// Point3D v1, v2;
-	int row, corner;
-
-	mat4 boneToModel[2];
-	mat4 boneTransforms[2];
-
+void CalculateTransforms() {
 	mat4 previousTransform = IdentityMatrix();
 	for(int i = 0; i < 2; i++) {
 		boneToModel[i] = Mult(
@@ -217,8 +208,22 @@ void DeformCylinder()
 		);
 		previousTransform = boneTransforms[i];
 	}
+}
 
-	
+void UploadTransforms() {
+	glUniformMatrix4fv(glGetUniformLocation(g_shader, "boneToModel"), 2, GL_TRUE, boneToModel);
+	glUniformMatrix4fv(glGetUniformLocation(g_shader, "boneTransforms"), 2, GL_TRUE, boneTransforms);
+	glUniformMatrix4fv(glGetUniformLocation(g_shader, "modelToBone"), 2, GL_TRUE, modelToBone);
+}
+
+///////////////////////////////////////////////////////
+//		D E F O R M	C Y L I N D E R
+//
+// Desc:	deformera cylindermeshen enligt skelettet
+void DeformCylinder()
+{
+	// Point3D v1, v2;
+	int row, corner;
 
 	// för samtliga vertexar
 	for (row = 0; row < kMaxRow; row++)
@@ -266,7 +271,7 @@ void DeformCylinder()
 				else
 					weight = g_boneWeights[row][corner].y;
 
-				vec3 w = g_boneWeights[row][corner]; 
+				vec3 w = g_boneWeights[row][corner];
 				g_vertsRes[row][corner] = VectorAdd(
 					ScalarMult(
 						MultVec3(boneTransforms[i], g_vertsOrg[row][corner]),
@@ -329,6 +334,8 @@ void DrawCylinder()
 	// Ersätt DeformCylinder med en vertex shader som gör vad DeformCylinder gör.
 	// Begynnelsen till shaderkoden ligger i filen "shader.vert" ...
 
+	CalculateTransforms();
+	UploadTransforms();
 	DeformCylinder();
 
 	setBoneLocation();
@@ -343,15 +350,14 @@ void DrawCylinder()
 }
 
 
-void DisplayWindow()
-{
+void DisplayWindow() {
 	mat4 m;
 
 	glClearColor(0.4, 0.4, 0.2, 1);
 	glClear(GL_COLOR_BUFFER_BIT+GL_DEPTH_BUFFER_BIT);
 
-    m = Mult(projectionMatrix, modelViewMatrix);
-    glUniformMatrix4fv(glGetUniformLocation(g_shader, "matrix"), 1, GL_TRUE, m.m);
+	m = Mult(projectionMatrix, modelViewMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(g_shader, "matrix"), 1, GL_TRUE, m.m);
 
 	DrawCylinder();
 
