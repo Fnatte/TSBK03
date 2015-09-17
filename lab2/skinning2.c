@@ -24,6 +24,7 @@
 // Linux
 #include <GL/gl.h>
 #include "MicroGlut.h" // <GL/glut.h>
+#include <stdlib.h>
 #endif
 #endif
 
@@ -274,22 +275,30 @@ void DeformCylinder()
   int row, corner;
 
   // för samtliga vertexar
-  for (row = 0; row < kMaxRow; row++)
-		{
-			for (corner = 0; corner < kMaxCorners; corner++)
-				{
-					// ---------=========  UPG 4 ===========---------
-					// TODO: skinna meshen mot alla benen.
-					//
-					// data som du kan använda:
-					// g_bonesRes[].rot
-					// g_bones[].pos
-					// g_boneWeights
-					// g_vertsOrg
-					// g_vertsRes
+  for (row = 0; row < kMaxRow; row++) {
+		for (corner = 0; corner < kMaxCorners; corner++) {
+			// ---------=========  UPG 4 ===========---------
+			// TODO: skinna meshen mot alla benen.
+			//
+			// data som du kan använda:
+			// g_bonesRes[].rot
+			// g_bones[].pos
+			// g_boneWeights
+			// g_vertsOrg
+			// g_vertsRes
 
-				}
+			g_vertsRes[row][corner] = SetVector(0,0,0);
+			for(int i = 0; i < kMaxBones; i++) {
+				g_vertsRes[row][corner] = VectorAdd(
+					ScalarMult(
+						MultVec3(boneTransforms[i], g_vertsOrg[row][corner]),
+						g_boneWeights[row][corner][i]
+					),
+					g_vertsRes[row][corner]
+				);
+			}
 		}
+	}
 }
 
 
@@ -345,7 +354,7 @@ void DrawCylinder() {
   //
 
 	CalculateTransforms();
-	UploadTransforms();
+	// UploadTransforms();
   DeformCylinder();
 
   // setBoneLocation();

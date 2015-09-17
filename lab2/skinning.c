@@ -73,7 +73,6 @@ Model *cylinderModel; // Collects all the above for drawing with glDrawElements
 mat4 modelViewMatrix, projectionMatrix;
 
 mat4 modelToBone[2];
-
 mat4 boneToModel[2];
 mat4 boneTransforms[2];
 
@@ -269,7 +268,6 @@ void DeformCylinder()
 				else
 					weight = g_boneWeights[row][corner].y;
 
-				vec3 w = g_boneWeights[row][corner];
 				g_vertsRes[row][corner] = VectorAdd(
 					ScalarMult(
 						MultVec3(boneTransforms[i], g_vertsOrg[row][corner]),
