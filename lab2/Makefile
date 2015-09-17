@@ -24,7 +24,7 @@ CLANGFLAGS = -Wall -std=c99 -I../common -I../common/Linux
 BINARIES = ../common/GL_utilities.c ../common/VectorUtils3.c ../common/LoadTGA.c ../common/loadobj.c $(MICRO)
 
 
-all: skinning
+all: skinning skinning2
 #target: dependencies
 #’tab’ 	compilation commands
 
