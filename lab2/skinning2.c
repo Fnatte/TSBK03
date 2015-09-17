@@ -82,6 +82,29 @@ Model *cylinderModel; // Collects all the above for drawing with glDrawElements
 
 mat4 modelViewMatrix, projectionMatrix;
 
+mat4 modelToBone[2];
+mat4 boneToModel[2];
+mat4 boneTransforms[2];
+
+void CalculateTransforms() {
+	mat4 previousTransform = IdentityMatrix();
+	for(int i = 0; i < 2; i++) {
+		boneToModel[i] = Mult(
+			T(g_bones[i].pos.x, g_bones[i].pos.y, g_bones[i].pos.z),
+			g_bones[i].rot
+		);
+		boneTransforms[i] = Mult(
+			Mult(boneToModel[i], previousTransform),
+			modelToBone[i]
+		);
+		previousTransform = boneTransforms[i];
+	}
+}
+
+void UploadTransforms() {
+	glUniformMatrix4fv(glGetUniformLocation(g_shader, "boneTransforms"), 2, GL_TRUE, boneTransforms);
+}
+
 ///////////////////////////////////////////////////
 //		I N I T  B O N E  W E I G H T S
 // Desc:  initierar benvikterna
@@ -183,7 +206,7 @@ void BuildCylinder()
 						g_poly[cornerIndex * 2 + 1].v3 = cornerIndex + kMaxCorners;
 					}
 				else
-					{ // Specialfall: sista i varvet, gåu runt hörnet korrekt
+					{ // Specialfall: sista i varvet, gÃ¥u runt hÃ¶rnet korrekt
 						cornerIndex = row * kMaxCorners + corner;
 						g_poly[cornerIndex * 2].v1 = cornerIndex;
 						g_poly[cornerIndex * 2].v2 = cornerIndex + 1 - kMaxCorners;
@@ -216,8 +239,8 @@ typedef struct Bone
 
 ///////////////////////////////////////
 //		G _ B O N E S
-// vårt skelett
-Bone g_bones[kMaxBones]; // Ursprungsdata, Šndra ej
+// vÃ¥rt skelett
+Bone g_bones[kMaxBones]; // Ursprungsdata, Ã¤ndra ej
 Bone g_bonesRes[kMaxBones]; // Animerat
 
 
@@ -247,7 +270,7 @@ void DeformCylinder()
   //float w[kMaxBones];
   int row, corner;
 
-  // för samtliga vertexar
+  // fÃ¶r samtliga vertexar
   for (row = 0; row < kMaxRow; row++)
 		{
 			for (corner = 0; corner < kMaxCorners; corner++)
@@ -274,7 +297,7 @@ void DeformCylinder()
 void animateBones(void)
 {
 	int bone;
-	// Hur mycket kring varje led? €ndra gŠrna.
+	// Hur mycket kring varje led? Ã¤ndra gÃ¤rna.
 	float angleScales[10] = { 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f };
 
 	float time = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
@@ -314,7 +337,7 @@ void DrawCylinder() {
   animateBones();
 
   // ---------=========  UPG 2 (extra) ===========---------
-  // ersÃ¤tt DeformCylinder med en vertex shader som gör vad DeformCylinder gör.
+  // ersÃ¤tt DeformCylinder med en vertex shader som gÃ¶r vad DeformCylinder gÃ¶r.
   // begynelsen till shader koden ligger i filen "ShaderCode.vert" ...
   //
 
@@ -359,8 +382,7 @@ void keyboardFunc( unsigned char key, int x, int y)
     exit(1);
 }
 
-void reshape(GLsizei w, GLsizei h)
-{
+void reshape(GLsizei w, GLsizei h) {
 	vec3 cam = {10,0,20};
 	vec3 look = {10,0,0};
 
