@@ -82,9 +82,9 @@ Model *cylinderModel; // Collects all the above for drawing with glDrawElements
 
 mat4 modelViewMatrix, projectionMatrix;
 
-mat4 modelToBone[2];
-mat4 boneToModel[2];
-mat4 boneTransforms[2];
+mat4 modelToBone[kMaxBones];
+mat4 boneToModel[kMaxBones];
+mat4 boneTransforms[kMaxBones];
 
 
 ///////////////////////////////////////////////////
@@ -259,7 +259,7 @@ void CalculateTransforms() {
 }
 
 void UploadTransforms() {
-	glUniformMatrix4fv(glGetUniformLocation(g_shader, "boneTransforms"), 2, GL_TRUE, boneTransforms);
+	glUniformMatrix4fv(glGetUniformLocation(g_shader, "boneTransforms"), kMaxBones, GL_TRUE, boneTransforms);
 }
 
 ///////////////////////////////////////////////////////
