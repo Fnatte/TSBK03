@@ -71,6 +71,8 @@ Model *cylinderModel; // Collects all the above for drawing with glDrawElements
 
 mat4 modelViewMatrix, projectionMatrix;
 
+mat4 modelToBone[2];
+
 ///////////////////////////////////////////////////
 //		B U I L D	C Y L I N D E R
 // Desc:	bygger upp cylindern
@@ -178,6 +180,15 @@ void setupBones(void)
 	g_bones[1].pos = SetVector(4.5f, 0.0f, 0.0f);
 	g_bones[0].rot = IdentityMatrix();
 	g_bones[1].rot = IdentityMatrix();
+
+	for(int i = 0; i < 2; i++) {
+		modelToBone[i] = InvertMat4(
+			Mult(
+				T(g_bones[i].pos.x, g_bones[i].pos.y, g_bones[i].pos.z),
+				g_bones[i].rot
+			)
+		);
+	}	
 }
 
 
@@ -189,6 +200,24 @@ void DeformCylinder()
 {
 	// Point3D v1, v2;
 	int row, corner;
+
+	mat4 boneToModel[2];
+	mat4 boneTransforms[2];
+
+	mat4 previousTransform = IdentityMatrix();
+	for(int i = 0; i < 2; i++) {
+		boneToModel[i] = Mult(
+			T(g_bones[i].pos.x, g_bones[i].pos.y, g_bones[i].pos.z),
+			g_bones[i].rot
+		);
+		boneTransforms[i] = Mult(
+			Mult(boneToModel[i], previousTransform),
+			modelToBone[i]
+		);
+		previousTransform = boneTransforms[i];
+	}
+
+	
 
 	// för samtliga vertexar
 	for (row = 0; row < kMaxRow; row++)
@@ -209,12 +238,16 @@ void DeformCylinder()
 			//
 			// row traverserar i cylinderns längdriktning,
 			// corner traverserar "runt" cylindern
-
-			int boner;
-			for (boner = 0; boner < 2; boner++) {
-				g_vertsRes[row][corner] = VectorAdd(ScalarMult(g_bones[boner].pos, weight[row]), g_vertsOrg[row][corner]);
+			g_vertsRes[row][corner] = SetVector(0,0,0);
+			for(int i = 0; i < 2; i++) {
+				g_vertsRes[row][corner] = VectorAdd(
+					ScalarMult(
+						MultVec3(boneTransforms[i], g_vertsOrg[row][corner]),
+						weight[row]
+					),
+					g_vertsRes[row][corner]
+				);
 			}
-
 
 			// ---=========	Uppgift 2: Soft skinning i CPU ===========------
 			// Deformera cylindern enligt det skelett som finns
