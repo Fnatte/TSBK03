@@ -245,17 +245,19 @@ void setupBones(void) {
 }
 
 void CalculateTransforms() {
-	mat4 previousTransform = IdentityMatrix();
+	mat4 previousLeftTransform = IdentityMatrix();
+	mat4 previousRightTransform = IdentityMatrix();
+	mat4 leftTransform;
+	mat4 rightTransform;
 	for(int i = 0; i < kMaxBones; i++) {
-		boneToModel[i] = Mult(
+		leftTransform = modelToBone[i];
+		rightTransform = Mult(
 			T(g_bones[i].pos.x, g_bones[i].pos.y, g_bones[i].pos.z),
 			g_bones[i].rot
 		);
-		boneTransforms[i] = Mult(
-			Mult(boneToModel[i], previousTransform),
-			modelToBone[i]
-		);
-		previousTransform = boneTransforms[i];
+		boneTransforms[i] = Mult(leftTransform, rightTransform);
+		previousLeftTransform = leftTransform; 
+		previousRightTransform = rightTransform;
 	}
 }
 
@@ -310,18 +312,18 @@ void animateBones(void)
 {
 	int bone;
 	// Hur mycket kring varje led? ändra gärna.
-	float angleScales[10] = { 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f, 1.f };
+	float angleScales[10] = { 0.1f, .2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.f };
 
 	float time = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
 	// Hur mycket skall vi vrida?
 	float angle = sin(time * 3.f) / 2.0f;
 
-	memcpy(&g_bonesRes, &g_bones, kMaxBones*sizeof(Bone));
+	// memcpy(&g_bonesRes, &g_bones, kMaxBones*sizeof(Bone));
 
-	g_bonesRes[0].rot = Rz(angle * angleScales[0]);
+	g_bones[0].rot = Rz(angle * angleScales[0]);
 
 	for (bone = 1; bone < kMaxBones; bone++)
-		g_bonesRes[bone].rot = Rz(angle * angleScales[bone]);
+		g_bones[bone].rot = Rz(angle * 3.f * angleScales[bone]);
 }
 
 
