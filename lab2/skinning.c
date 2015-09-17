@@ -238,15 +238,11 @@ void DeformCylinder()
 			// row traverserar i cylinderns längdriktning,
 			// corner traverserar "runt" cylindern
 			g_vertsRes[row][corner] = SetVector(0,0,0);
-			for(int i = 0; i < 2; i++) {
-				g_vertsRes[row][corner] = VectorAdd(
-					ScalarMult(
-						MultVec3(boneTransforms[i], g_vertsOrg[row][corner]),
-						weight[row]
-					),
-					g_vertsRes[row][corner]
-				);
-			}
+			int boneIndex = weight[row] == 0.0 ? 0 : 1;
+			g_vertsRes[row][corner] = VectorAdd(
+					MultVec3(boneTransforms[boneIndex], g_vertsOrg[row][corner]),
+				g_vertsRes[row][corner]
+			);
 
 			// ---=========	Uppgift 2: Soft skinning i CPU ===========------
 			// Deformera cylindern enligt det skelett som finns
