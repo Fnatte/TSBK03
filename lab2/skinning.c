@@ -211,9 +211,7 @@ void CalculateTransforms() {
 }
 
 void UploadTransforms() {
-	glUniformMatrix4fv(glGetUniformLocation(g_shader, "boneToModel"), 2, GL_TRUE, boneToModel);
 	glUniformMatrix4fv(glGetUniformLocation(g_shader, "boneTransforms"), 2, GL_TRUE, boneTransforms);
-	glUniformMatrix4fv(glGetUniformLocation(g_shader, "modelToBone"), 2, GL_TRUE, modelToBone);
 }
 
 ///////////////////////////////////////////////////////
@@ -336,7 +334,7 @@ void DrawCylinder()
 
 	CalculateTransforms();
 	UploadTransforms();
-	DeformCylinder();
+	//DeformCylinder();
 
 	setBoneLocation();
 	setBoneRotation();
