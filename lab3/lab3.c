@@ -106,7 +106,7 @@ Material ballMt = { { 1.0, 1.0, 1.0, 1.0 }, { 1.0, 1.0, 1.0, 0.0 },
                 };
 
 
-enum {kNumBalls = 16}; // Change as desired, max 16
+enum {kNumBalls = 4}; // Change as desired, max 16
 
 //------------------------------Globals---------------------------------
 ModelTexturePair tableAndLegs, tableSurf;
@@ -186,13 +186,17 @@ void updateWorld()
 	// Detect collisions, calculate speed differences, apply forces
 	for (i = 0; i < kNumBalls; i++) {
 		for (j = i+1; j < kNumBalls; j++) {
-				// YOUR CODE HERE
+			if(absVec3(VectorSub(ball[i].X, ball[j].X)) < kBallSize) {
+				vec3 temp = ball[i].P;
+				ball[i].P = ball[j].P;
+				ball[j].P = temp;
 			}
+		}
 	}
 	// Control rotation here to reflect
 	// friction against floor, simplified as well as more correct
 	for (i = 0; i < kNumBalls; i++) {
-		ball[i].R = ArbRotate(CrossProduct(ball[i].v, SetVector(0, -1, 0)), currentTime * absVec3(ball[i].v) * 5);
+		ball[i].R = ArbRotate(CrossProduct(ball[i].v, SetVector(0, -1, 0)), currentTime * absVec3(ball[i].v) * 6);
 	}
 
 // Update state, follows the book closely
