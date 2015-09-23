@@ -1,0 +1,27 @@
+% -*- compile-command: "pdflatex lab2.tex"; -*-
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\begin{document}
+
+\section{Skinning}
+
+\begin{itemize}
+\item  I del 2, translaterade du med translationsmatris eller med addition på koordinater? Spelar det någon roll?
+
+  Translationsmatris skapade vi en.
+
+\item  Hur löste du GPU-skinningen? Vilken information behövde skickas till shadern?
+
+  Vi behövde ladda upp enbart matriserna boneTransforms som vi kallade den, en matris per ben. I boken kallas den matrisen M, vilket ypperligt namn.
+
+\item  Om man gör skinning med en mer komplex modell (armar och ben mm), behövs vilolägesrotationer egentligen?
+
+  Man kan tänka sig att fötterna på en person är lätt roterade i viloläge, men vi skulle lika gärna kunna skippa det enligt vår åsikt.
+
+\end{itemize}
+
+\end{document}
