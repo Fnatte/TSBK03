@@ -78,6 +78,10 @@ Session.vim
 *.vrb
 *.xdy
 *.tdo
+*.pdf
 
 ### Compiled files ###
 *.out
+
+### Git files ###
+*.orig
