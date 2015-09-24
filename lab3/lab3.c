@@ -184,9 +184,18 @@ void updateWorld()
 	}
 
 	// Detect collisions, calculate speed differences, apply forces
+	vec3 difference;
 	for (i = 0; i < kNumBalls; i++) {
 		for (j = i+1; j < kNumBalls; j++) {
-			if(absVec3(VectorSub(ball[i].X, ball[j].X)) < kBallSize * 1.2) {
+			difference = VectorSub(ball[i].X, ball[j].X);
+			if(absVec3(difference) <= kBallSize * 2) {
+				// Pull out the balls from eath other.
+				vec3 normal = Normalize(difference);
+				vec3 relativePositioningTheyShouldHave = ScalarMult(normal, kBallSize * 2.1);
+				vec3 diff = VectorSub(relativePositioningTheyShouldHave, difference);
+				ball[i].P = VectorSub(ball[i].P, diff);
+				ball[j].P = VectorAdd(ball[j].P, diff);
+
 				vec3 temp = ball[i].P;
 				ball[i].P = ball[j].P;
 				ball[j].P = temp;
@@ -314,13 +323,14 @@ void init()
 		ball[i].P = SetVector(((float)(i % 13))/ 50.0, 0.0, ((float)(i % 15))/50.0);
 		ball[i].R = IdentityMatrix();
 	}
+	ball[0].mass = 5.0;
 	ball[0].X = SetVector(0, 0, 0);
 	ball[1].X = SetVector(0, 0, 0.5);
 	ball[2].X = SetVector(0.0, 0, 1.0);
 	ball[3].X = SetVector(0, 0, 1.5);
 	ball[4].X = SetVector(0.1, 0, 1.5);
-	ball[5].X = SetVector(0.3, 0.2, 1.5);
-	ball[5].X = SetVector(0.2, 0.4, 1.5);
+	ball[5].X = SetVector(0.3, 0, 1.5);
+	ball[6].X = SetVector(0.5, 0, 1.5);
 	ball[0].P = SetVector(0, 0, 0);
 	ball[1].P = SetVector(0, 0, 0);
 	ball[2].P = SetVector(0, 0, 0);
