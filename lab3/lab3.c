@@ -39,7 +39,8 @@
 
 #define abs(x) (x > 0.0? x: -x)
 
-#define epsilon 1.0
+#define elasticity 1.0
+#define friction 10
 
 void onTimer(int value);
 
@@ -144,8 +145,7 @@ void loadModelTexturePair(ModelTexturePair* modelTexturePair,
     modelTexturePair->textureId = 0;
 }
 
-void renderModelTexturePair(ModelTexturePair* modelTexturePair)
-{
+void renderModelTexturePair(ModelTexturePair* modelTexturePair) {
 	if(modelTexturePair->textureId)
 		glUniform1i(glGetUniformLocation(shader, "objID"), 0);  // use texture
 	else
@@ -157,15 +157,13 @@ void renderModelTexturePair(ModelTexturePair* modelTexturePair)
 	DrawModel(modelTexturePair->model, shader, "in_Position", "in_Normal", NULL);
 }
 
-void loadMaterial(Material mt)
-{
+void loadMaterial(Material mt) {
 	glUniform4fv(glGetUniformLocation(shader, "diffColor"), 1, &mt.diffColor[0]);
 	glUniform1fv(glGetUniformLocation(shader, "shininess"), 1, &mt.shininess);
 }
 
 //---------------------------------- physics update and billiard table rendering ----------------------------------
-void updateWorld()
-{
+void updateWorld() {
 	// Zero forces
 	int i, j;
 	for (i = 0; i < kNumBalls; i++) {
@@ -201,7 +199,7 @@ void updateWorld()
 
 				// Give them the momentum caused by the impact.
 				vec3 relativeVelocity = VectorSub(ball[i].v, ball[j].v);
-				float impulseAmplitude = -(epsilon + 1.0)
+				float impulseAmplitude = -(elasticity + 1.0)
 																	* DotProduct(relativeVelocity, normal)
 																  / (1/ball[i].mass+1/ball[j].mass);
 				ball[i].P = VectorAdd(ball[i].P, ScalarMult(normal, impulseAmplitude));
@@ -209,25 +207,17 @@ void updateWorld()
 			}
 		}
 	}
-	// Control rotation here to reflect
-	// friction against floor, simplified as well as more correct
-	for (i = 0; i < kNumBalls; i++) {
-		vec3 rotaxis = CrossProduct(SetVector(0, 1, 0), ball[i].P);
-		ball[i].omega = ScalarMult(rotaxis, 1 / (ball[i].mass * kBallSize));
-	}
 
 	// Update state, follows the book closely
 	for (i = 0; i < kNumBalls; i++) {
 		vec3 dX, dP, dL, dO;
 		mat4 Rd;
 
-		/*
-			Might be useful in the future.
-			ball[i].R = Mult(ball[i].R, ArbRotate(CrossProduct(ball[i].v, SetVector(0, 1, 0)),
-			deltaT * absVec3(ball[i].v) * 10));
-		*/
-		// Note: omega is not set. How do you calculate it?
-		// YOUR CODE HERE
+		vec3 rotaxis = CrossProduct(SetVector(0, 1, 0), ball[i].v);
+		// ball[i].omega = ScalarMult(rotaxis, 1 / (ball[i].mass * kBallSize));
+		vec3 speedAtEdge = ScalarMult(ball[i].omega, kBallSize);
+		vec3 speedDiffEdgeToTable = VectorSub(ball[i].v, speedAtEdge);
+		ball[i].T = ScalarMult(speedDiffEdgeToTable, friction);
 
 		//		R := R + Rd*dT
 		dO = ScalarMult(ball[i].omega, deltaT); // dO := omega*dT
@@ -241,6 +231,10 @@ void updateWorld()
 		dL = ScalarMult(ball[i].T, deltaT); // dL := T*dT
 		ball[i].L = VectorAdd(ball[i].L, dL); // L := L + dL
 
+		mat3 smallR = mat4tomat3(ball[i].R);
+		mat3 jLoc = MultMat3(MultMat3(smallR, TransposeMat3(smallR)), InvertMat3(ball[i].inertia));
+		ball[i].omega = MultMat3Vec3(jLoc, ball[i].L);
+
 		OrthoNormalizeMatrix(&ball[i].R);
 
 		//		v := P * 1/mass
@@ -251,8 +245,7 @@ void updateWorld()
 	}
 }
 
-void renderBall(int ballNr)
-{
+void renderBall(int ballNr) {
 	glBindTexture(GL_TEXTURE_2D, ball[ballNr].tex);
 
 	// Ball with rotation
@@ -275,8 +268,7 @@ void renderBall(int ballNr)
 	DrawModel(sphere, shader, "in_Position", "in_Normal", NULL);
 }
 
-void renderTable()
-{
+void renderTable() {
 	// Frame and legs, brown, no texture
 	loadMaterial(tableMt);
 	printError("loading material");
@@ -288,8 +280,7 @@ void renderTable()
 }
 //-------------------------------------------------------------------------------------
 
-void init()
-{
+void init() {
 	dumpInfo();  // shader info
 
 	// GL inits
@@ -346,9 +337,9 @@ void init()
 
 	for (i = 0; i < kNumBalls; i++) {
 		float f = 5 / 2 * ball[i].mass * kBallSize;
-		mat3 m3 = {f, 0, 0,
-							 0, f, 0,
-							 0, 0, f };
+		mat3 m3 = { {f, 0, 0,
+								 0, f, 0,
+								 0, 0, f } };
 		ball[i].inertia = m3;
 	}
 
