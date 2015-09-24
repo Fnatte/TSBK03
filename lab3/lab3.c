@@ -39,6 +39,8 @@
 
 #define abs(x) (x > 0.0? x: -x)
 
+#define epsilon 0.0
+
 void onTimer(int value);
 
 static double startTime = 0;
@@ -191,16 +193,19 @@ void updateWorld()
 			if(absVec3(difference) <= kBallSize * 2) {
 				// Pull out the balls from eath other.
 				vec3 normal = Normalize(difference);
-				vec3 relativePositioningTheyShouldHave = ScalarMult(normal, kBallSize * 2.1);
+				vec3 relativePositioningTheyShouldHave = ScalarMult(normal, kBallSize * 2);
 				vec3 diff = VectorSub(relativePositioningTheyShouldHave, difference);
-				ball[i].P = VectorSub(ball[i].P, diff);
-				ball[j].P = VectorAdd(ball[j].P, diff);
+				ball[i].X = VectorAdd(ball[i].X, diff);
+				ball[j].X = VectorSub(ball[j].X, diff);
 
 				vec3 relativeVelocity = VectorSub(ball[i].v, ball[j].v);
 
-				float a = 0.01 * DotProduct(relativeVelocity, normal) / (1/ball[i].mass+1/ball[j].mass);
-				ball[i].P = VectorAdd(ball[i].P, ScalarMult(normal, -a));
-				ball[j].P = VectorAdd(ball[j].P, ScalarMult(normal, -a));
+				float impulseAmplitude = -(epsilon+1.0) 
+																	* DotProduct(relativeVelocity, normal)
+																  / (1/ball[i].mass+1/ball[j].mass);
+
+				ball[i].P = VectorAdd(ball[i].P, ScalarMult(normal, impulseAmplitude));
+				ball[j].P = VectorAdd(ball[j].P, ScalarMult(normal, -impulseAmplitude));
 			}
 		}
 	}
@@ -224,11 +229,6 @@ void updateWorld()
 		// Note: omega is not set. How do you calculate it?
 		// YOUR CODE HERE
 
-		//		v := P * 1/mass
-		ball[i].v = ScalarMult(ball[i].P, 1.0/(ball[i].mass));
-		//		X := X + v*dT
-		dX = ScalarMult(ball[i].v, deltaT); // dX := v*dT
-		ball[i].X = VectorAdd(ball[i].X, dX); // X := X + dX
 		//		R := R + Rd*dT
 		dO = ScalarMult(ball[i].omega, deltaT); // dO := omega*dT
 		Rd = CrossMatrix(dO); // Calc dO, add to R
@@ -242,6 +242,12 @@ void updateWorld()
 		ball[i].L = VectorAdd(ball[i].L, dL); // L := L + dL
 
 		OrthoNormalizeMatrix(&ball[i].R);
+
+		//		v := P * 1/mass
+		ball[i].v = ScalarMult(ball[i].P, 1.0/(ball[i].mass));
+		//		X := X + v*dT
+		dX = ScalarMult(ball[i].v, deltaT); // dX := v*dT
+		ball[i].X = VectorAdd(ball[i].X, dX); // X := X + dX
 	}
 }
 
