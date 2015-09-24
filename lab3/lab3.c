@@ -213,11 +213,12 @@ void updateWorld() {
 		vec3 dX, dP, dL, dO;
 		mat4 Rd;
 
-		vec3 rotaxis = CrossProduct(SetVector(0, 1, 0), ball[i].v);
+		// vec3 rotaxis = CrossProduct(SetVector(0, 1, 0), ball[i].v);
 		// ball[i].omega = ScalarMult(rotaxis, 1 / (ball[i].mass * kBallSize));
-		vec3 speedAtEdge = ScalarMult(ball[i].omega, kBallSize);
-		vec3 speedDiffEdgeToTable = VectorSub(ball[i].v, speedAtEdge);
-		ball[i].T = ScalarMult(speedDiffEdgeToTable, friction);
+		vec3 speedAtEdge = VectorAdd(CrossProduct(ball[i].omega, SetVector(0, -kBallSize, 0)), ball[i].v);
+		ball[i].F = ScalarMult(speedAtEdge, -0.01);
+
+		ball[i].T = CrossProduct(SetVector(0, -kBallSize, 0), ScalarMult(speedAtEdge, -100.0));
 
 		//		R := R + Rd*dT
 		dO = ScalarMult(ball[i].omega, deltaT); // dO := omega*dT
