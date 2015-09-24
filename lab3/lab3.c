@@ -196,9 +196,11 @@ void updateWorld()
 				ball[i].P = VectorSub(ball[i].P, diff);
 				ball[j].P = VectorAdd(ball[j].P, diff);
 
-				vec3 temp = ball[i].P;
-				ball[i].P = ball[j].P;
-				ball[j].P = temp;
+				vec3 relativeVelocity = VectorSub(ball[i].v, ball[j].v);
+
+				float a = 0.01 * DotProduct(relativeVelocity, normal) / (1/ball[i].mass+1/ball[j].mass);
+				ball[i].P = VectorAdd(ball[i].P, ScalarMult(normal, -a));
+				ball[j].P = VectorAdd(ball[j].P, ScalarMult(normal, -a));
 			}
 		}
 	}
