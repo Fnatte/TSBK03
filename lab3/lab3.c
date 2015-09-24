@@ -39,7 +39,7 @@
 
 #define abs(x) (x > 0.0? x: -x)
 
-#define epsilon 0.0
+#define epsilon 1.0
 
 void onTimer(int value);
 
@@ -86,6 +86,7 @@ typedef struct
   vec3 omega; // Angular momentum
   vec3 v; // Change in velocity
 
+	mat3 inertia;
 } Ball;
 
 typedef struct
@@ -130,7 +131,6 @@ vec3 lightSourcesColorArr[] = { {1.0f, 1.0f, 1.0f} }; // White light
 GLfloat specularExponent[] = {50.0};
 GLint directional[] = {0};
 vec3 lightSourcesDirectionsPositions[] = { {0.0, 10.0, 0.0} };
-
 
 //----------------------------------Utility functions-----------------------------------
 
@@ -189,6 +189,7 @@ void updateWorld()
 	vec3 difference;
 	for (i = 0; i < kNumBalls; i++) {
 		for (j = i+1; j < kNumBalls; j++) {
+
 			difference = VectorSub(ball[i].X, ball[j].X);
 			if(absVec3(difference) <= kBallSize * 2) {
 				// Pull out the balls from eath other.
@@ -198,12 +199,11 @@ void updateWorld()
 				ball[i].X = VectorAdd(ball[i].X, diff);
 				ball[j].X = VectorSub(ball[j].X, diff);
 
+				// Give them the momentum caused by the impact.
 				vec3 relativeVelocity = VectorSub(ball[i].v, ball[j].v);
-
-				float impulseAmplitude = -(epsilon+1.0) 
+				float impulseAmplitude = -(epsilon + 1.0)
 																	* DotProduct(relativeVelocity, normal)
 																  / (1/ball[i].mass+1/ball[j].mass);
-
 				ball[i].P = VectorAdd(ball[i].P, ScalarMult(normal, impulseAmplitude));
 				ball[j].P = VectorAdd(ball[j].P, ScalarMult(normal, -impulseAmplitude));
 			}
@@ -336,13 +336,21 @@ void init()
 	ball[1].X = SetVector(0, 0, 0.5);
 	ball[2].X = SetVector(0.0, 0, 1.0);
 	ball[3].X = SetVector(0, 0, 1.5);
-	ball[4].X = SetVector(0.1, 0, 1.5);
+	ball[4].X = SetVector(0.7, 0, 1.5);
 	ball[5].X = SetVector(0.3, 0, 1.5);
 	ball[6].X = SetVector(0.5, 0, 1.5);
 	ball[0].P = SetVector(0, 0, 0);
 	ball[1].P = SetVector(0, 0, 0);
 	ball[2].P = SetVector(0, 0, 0);
 	ball[3].P = SetVector(0, 0, 1.00);
+
+	for (i = 0; i < kNumBalls; i++) {
+		float f = 5 / 2 * ball[i].mass * kBallSize;
+		mat3 m3 = {f, 0, 0,
+							 0, f, 0,
+							 0, 0, f };
+		ball[i].inertia = m3;
+	}
 
 	cam = SetVector(0, 2, 2);
 	point = SetVector(0, 0, 0);
@@ -384,16 +392,14 @@ void display(void)
 	glutSwapBuffers();
 }
 
-void onTimer(int value)
-{
+void onTimer(int value) {
 	glutPostRedisplay();
 	deltaT = getElapsedTime() - currentTime;
 	currentTime = getElapsedTime();
 	glutTimerFunc(20, &onTimer, value);
 }
 
-void reshape(GLsizei w, GLsizei h)
-{
+void reshape(GLsizei w, GLsizei h) {
 	lastw = w;
 	lasth = h;
 
@@ -404,8 +410,7 @@ void reshape(GLsizei w, GLsizei h)
 }
 
 //-----------------------------main-----------------------------------------------
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 	glutInitWindowSize(W, H);
