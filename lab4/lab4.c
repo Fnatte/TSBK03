@@ -16,15 +16,54 @@
 #include "LoadTGA.h"
 #include "SpriteLight.h"
 #include "GL_utilities.h"
+#include <math.h>
 
 // Lägg till egna globaler här efter behov.
 
+float amplitude(FPoint p) {
+	return sqrt(p.h * p.h + p.v * p.v);
+}
 
-void SpriteBehavior(SpritePtr sp) {
+FPoint normalize(FPoint p) {
+	float length = sqrt(p.h * p.h + p.v * p.v);
+	FPoint retVal;
+	retVal.h = p.h / length;
+	retVal.v = p.v / length;
+	return retVal;
+}
+
+float distance(FPoint first, FPoint second) {
+	return sqrt(pow(first.h - second.h, 2) + sqrt(pow(first.v - second.v, 2)));
+}
+
+void SpriteBehavior(SpritePtr current) {
 	// Lägg till din labbkod här. Det går bra att ändra var som helst i
 	// koden i övrigt, men mycket kan samlas här. Du kan utgå från den
 	// globala listroten, gSpriteRoot, för att kontrollera alla sprites
 	// hastigheter och positioner, eller arbeta från egna globaler.
+	SpritePtr other = gSpriteRoot;
+	int	numberCloseBy = 0;
+	FPoint centerOfMass;
+	do {
+		if (current == other){
+			other = other->next;
+			continue;
+		}
+		printf("%f\n", distance(current->position, other->position));
+		if (distance(current->position, other->position) < 50){
+			numberCloseBy++;
+			centerOfMass.h += other->position.h;
+			centerOfMass.v += other->position.v;
+		}
+		other = other->next;
+	} while (other != NULL);
+
+	if (numberCloseBy > 0){
+		centerOfMass = normalize(centerOfMass);
+		float length = amplitude(current->speed);
+		current->speed.h = centerOfMass.h * length;
+		current->speed.v = centerOfMass.v * length;
+	}
 }
 
 // Drawing routine
