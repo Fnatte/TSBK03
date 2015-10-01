@@ -20,6 +20,14 @@
 
 // Lägg till egna globaler här efter behov.
 
+FPoint division(FPoint p, float divisor) {
+	return (FPoint){p.h / divisor, p.v / divisor};
+}
+
+FPoint multiplication(FPoint p, float factor) {
+	return (FPoint){p.h * factor, p.v / factor};
+}
+
 float amplitude(FPoint p) {
 	return sqrt(p.h * p.h + p.v * p.v);
 }
@@ -36,38 +44,44 @@ float distance(FPoint first, FPoint second) {
 	return sqrt(pow(first.h - second.h, 2) + sqrt(pow(first.v - second.v, 2)));
 }
 
+FPoint clamp(FPoint point, float max, float min) {
+	return (FPoint){(point.h > max)? max : (point.h < min)? min : point.h,
+			(point.v > max)? max : (point.v < min)? min : point.v};
+}
+
 void SpriteBehavior(SpritePtr current) {
 	// Lägg till din labbkod här. Det går bra att ändra var som helst i
 	// koden i övrigt, men mycket kan samlas här. Du kan utgå från den
 	// globala listroten, gSpriteRoot, för att kontrollera alla sprites
 	// hastigheter och positioner, eller arbeta från egna globaler.
 	SpritePtr other = gSpriteRoot;
-	int	numberCloseBy = 0;
-	FPoint centerOfMass;
+	FPoint force = {0, 0};
 	do {
 		if (current == other) {
 			other = other->next;
 			continue;
 		}
-		if (distance(current->position, other->position) < 100){
-			numberCloseBy++;
-			centerOfMass.h += other->position.h;
-			centerOfMass.v += other->position.v;
+		float length = distance(current->position, other->position);
+		FPoint distance = {other->position.h - current->position.h,
+											 other->position.v - current->position.v};
+		distance = normalize(distance);
+		if (length < 10) {
+			force.h -= distance.h * 5;
+			force.v -= distance.v * 5;
 		}
+		else if (length < 100) {
+			force.h += distance.h;
+			force.v += distance.v;
+		}
+
 		other = other->next;
 	} while (other != NULL);
 
-	if (numberCloseBy > 0) {
-		centerOfMass.h /= numberCloseBy;
-		centerOfMass.v /= numberCloseBy;
+	force = division(force, 10);
 
-		// Move towards each other
-		FPoint direction = {centerOfMass.h - current->position.h, centerOfMass.v - current->position.v};
-		direction = normalize(direction);
-		float length = amplitude(current->speed);
-		current->speed.h = direction.h * length;
-		current->speed.v = direction.v * length;
-	}
+	current->speed.h += force.h;
+	current->speed.v += force.v;
+	current->speed = clamp(current->speed, 5.0, -5.0);
 }
 
 // Drawing routine
