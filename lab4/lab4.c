@@ -45,12 +45,11 @@ void SpriteBehavior(SpritePtr current) {
 	int	numberCloseBy = 0;
 	FPoint centerOfMass;
 	do {
-		if (current == other){
+		if (current == other) {
 			other = other->next;
 			continue;
 		}
-		printf("%f\n", distance(current->position, other->position));
-		if (distance(current->position, other->position) < 50){
+		if (distance(current->position, other->position) < 50) {
 			numberCloseBy++;
 			centerOfMass.h += other->position.h;
 			centerOfMass.v += other->position.v;
@@ -58,11 +57,18 @@ void SpriteBehavior(SpritePtr current) {
 		other = other->next;
 	} while (other != NULL);
 
-	if (numberCloseBy > 0){
-		centerOfMass = normalize(centerOfMass);
+	if (numberCloseBy > 0) {
+		centerOfMass.h /= numberCloseBy;
+		centerOfMass.v /= numberCloseBy;
+		printf("(%f, %f)\n", centerOfMass.h, centerOfMass.v);
+
+		FPoint direction = {centerOfMass.h - current->position.h, centerOfMass.v - current->position.v};
+		printf("direction: (%f, %f)", direction.h, direction.v);
+		direction = normalize(direction);
+
 		float length = amplitude(current->speed);
-		current->speed.h = centerOfMass.h * length;
-		current->speed.v = centerOfMass.v * length;
+		current->speed.h = direction.h * length;
+		current->speed.v = direction.v * length;
 	}
 }
 
@@ -77,7 +83,6 @@ void Display() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	DrawBackground();
-
 
 	// Loop though all sprites. (Several loops in real engine.)
 	sp = gSpriteRoot;
