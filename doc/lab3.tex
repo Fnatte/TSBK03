@@ -4,6 +4,7 @@
 \usepackage[english]{babel}
 \usepackage{listings}
 \usepackage{hyperref}
+\usepackage{mathtools}
 
 \begin{document}
 
@@ -12,12 +13,39 @@
 \begin{itemize}
 \item  Vad blir den förenklade formeln?
 
-  j = \frac{-(\epsilon + 1)v^{-}_{rel} \dot normal}{1/m_1+1/m_2}
+  \begin{equation}
+    j = \frac{-(\epsilon + 1)v^{-}_{rel} \dot normal}{1/m_1+1/m_2}
+  \end{equation}
 
 \item Vilket av testfallen var svårast att uppfylla, och varför?
 
   Det svåraste testfallet är då epsilon är 0.0 för att då kommer bollarna att hamna ytterst nära varandra och rulla med varandra varpå det är stor risk för att avståndsjusteringskoden placerar en boll så att den är inuti en annan boll.
 
+\item Vad blir tröghetsmatrisen för denna modell?
+
+  Tröghetsmatrisen ser ut som:
+
+  \begin{equation}
+    \begin{matrix}
+      5/2 * mr^2 & 0 & 0 \\
+      0 & 5/2 * mr^2 & 0 \\
+      0 & 0 & 5/2 * mr^2
+    \end{matrix}
+  \end{equation}
+
+\item Hur kan denna tröghetsmatris på enklast möjliga sätt användas för att beräkna rotationshastigheten omega från rörelsemängdsmomentet L?
+
+		mat3 smallR = mat4tomat3(ball[i].R);
+		mat3 localInvInertia = MultMat3(smallR, MultMat3(InvertMat3(ball[i].inertia), TransposeMat3(smallR)));
+		ball[i].omega = MultMat3Vec3(localInvInertia, ball[i].L);
+
+  Tröghetsmatrisen inverteras och transponeras till rotationslokala koordinater, rotationshastigheten omega beräknas sedan utifrån en multiplikation av den lokala inverterade tröghetsmatrisen och rotationsmomentet L.
+
+\item För att nu beräkna en kraft måste vi beräkna hastighetsskillnaden i bollens kontaktpunkt med underlaget. Hur finner vi denna hastighetsskillnad?
+
+  Hastigheten för bollen vid kontaktpunkten fås genom att multiplicera bollens radie med dess rotationshastighet. Vi adderar sedan kontaktpunktens hastighet med bollens hastighet relativt ytan för att få hastighetsskillnaden där imellan. Detta uttrycker sig i kod som:
+
+		vec3 speedAtEdge = VectorAdd(CrossProduct(ball[i].omega, SetVector(0, -kBallSize, 0)), ball[i].v);
 
 \end{itemize}
 

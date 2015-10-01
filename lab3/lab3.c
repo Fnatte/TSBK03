@@ -56,8 +56,7 @@ void resetElapsedTime() {
   startTime = (double) timeVal.tv_sec + (double) timeVal.tv_usec * 0.000001;
 }
 
-float getElapsedTime()
-{
+float getElapsedTime() {
   struct timeval timeVal;
   gettimeofday(&timeVal, 0);
   double currentTime = (double) timeVal.tv_sec
@@ -67,14 +66,12 @@ float getElapsedTime()
 }
 
 
-typedef struct
-{
+typedef struct {
   Model* model;
   GLuint textureId;
 } ModelTexturePair;
 
-typedef struct
-{
+typedef struct {
   GLuint tex;
   GLfloat mass;
 
@@ -83,15 +80,13 @@ typedef struct
 
   vec3 F, T; // accumulated force and torque
 
-	//  mat4 J, Ji; We could have these but we can live without them for spheres.
   vec3 omega; // Angular momentum
   vec3 v; // Change in velocity
 
 	mat3 inertia;
 } Ball;
 
-typedef struct
-{
+typedef struct {
 	GLfloat diffColor[4], specColor[4],
     ka, kd, ks, shininess;  // coefficients and specular exponent
 } Material;
@@ -136,8 +131,7 @@ vec3 lightSourcesDirectionsPositions[] = { {0.0, 10.0, 0.0} };
 //----------------------------------Utility functions-----------------------------------
 
 void loadModelTexturePair(ModelTexturePair* modelTexturePair,
-													char* model, char* texture)
-{
+													char* model, char* texture) {
   modelTexturePair->model = LoadModelPlus(model); // , shader, "in_Position", "in_Normal", "in_TexCoord");
   if (texture)
     LoadTGATextureSimple(texture, &modelTexturePair->textureId);
@@ -200,8 +194,8 @@ void updateWorld() {
 				// Give them the momentum caused by the impact.
 				vec3 relativeVelocity = VectorSub(ball[i].v, ball[j].v);
 				float impulseAmplitude = -(elasticity + 1.0)
-																	* DotProduct(relativeVelocity, normal)
-																  / (1/ball[i].mass+1/ball[j].mass);
+					* DotProduct(relativeVelocity, normal)
+					/ (1/ball[i].mass+1/ball[j].mass);
 				ball[i].P = VectorAdd(ball[i].P, ScalarMult(normal, impulseAmplitude));
 				ball[j].P = VectorAdd(ball[j].P, ScalarMult(normal, -impulseAmplitude));
 			}
@@ -213,28 +207,25 @@ void updateWorld() {
 		vec3 dX, dP, dL, dO;
 		mat4 Rd;
 
-		// vec3 rotaxis = CrossProduct(SetVector(0, 1, 0), ball[i].v);
-		// ball[i].omega = ScalarMult(rotaxis, 1 / (ball[i].mass * kBallSize));
 		vec3 speedAtEdge = VectorAdd(CrossProduct(ball[i].omega, SetVector(0, -kBallSize, 0)), ball[i].v);
 		ball[i].F = ScalarMult(speedAtEdge, -0.01);
-
 		ball[i].T = CrossProduct(SetVector(0, -kBallSize, 0), ScalarMult(speedAtEdge, -100.0));
 
-		//		R := R + Rd*dT
+		// R := R + Rd*dT
 		dO = ScalarMult(ball[i].omega, deltaT); // dO := omega*dT
 		Rd = CrossMatrix(dO); // Calc dO, add to R
 		Rd = Mult(Rd, ball[i].R); // Rotate the diff (NOTE: This was missing in early versions.)
 		ball[i].R = MatrixAdd(ball[i].R, Rd);
-		//		P := P + F * dT
+		// P := P + F * dT
 		dP = ScalarMult(ball[i].F, deltaT); // dP := F*dT
 		ball[i].P = VectorAdd(ball[i].P, dP); // P := P + dP
-		//		L := L + t * dT
+		// L := L + t * dT
 		dL = ScalarMult(ball[i].T, deltaT); // dL := T*dT
 		ball[i].L = VectorAdd(ball[i].L, dL); // L := L + dL
 
 		mat3 smallR = mat4tomat3(ball[i].R);
-		mat3 jLoc = MultMat3(MultMat3(smallR, TransposeMat3(smallR)), InvertMat3(ball[i].inertia));
-		ball[i].omega = MultMat3Vec3(jLoc, ball[i].L);
+		mat3 localInvInertia = MultMat3(smallR, MultMat3(InvertMat3(ball[i].inertia), TransposeMat3(smallR)));
+		ball[i].omega = MultMat3Vec3(localInvInertia, ball[i].L);
 
 		OrthoNormalizeMatrix(&ball[i].R);
 
@@ -337,7 +328,7 @@ void init() {
 	ball[3].P = SetVector(0, 0, 1.00);
 
 	for (i = 0; i < kNumBalls; i++) {
-		float f = 5 / 2 * ball[i].mass * kBallSize;
+		float f = 5 / 2 * ball[i].mass * kBallSize * kBallSize;
 		mat3 m3 = { {f, 0, 0,
 								 0, f, 0,
 								 0, 0, f } };
