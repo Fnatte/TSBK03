@@ -20,7 +20,7 @@
 // Lägg till egna globaler här efter behov.
 
 
-void SpriteBehavior() {
+void SpriteBehavior(SpritePtr sp) {
 	// Lägg till din labbkod här. Det går bra att ändra var som helst i
 	// koden i övrigt, men mycket kan samlas här. Du kan utgå från den
 	// globala listroten, gSpriteRoot, för att kontrollera alla sprites
@@ -39,16 +39,15 @@ void Display() {
 
 	DrawBackground();
 
-	SpriteBehavior(); // Din kod!
 
 	// Loop though all sprites. (Several loops in real engine.)
 	sp = gSpriteRoot;
-	do
-		{
-			HandleSprite(sp); // Callback in a real engine
-			DrawSprite(sp);
-			sp = sp->next;
-		} while (sp != NULL);
+	do {
+		SpriteBehavior(sp); // Din kod!
+		HandleSprite(sp); // Callback in a real engine
+		DrawSprite(sp);
+		sp = sp->next;
+	} while (sp != NULL);
 
 	glutSwapBuffers();
 }
