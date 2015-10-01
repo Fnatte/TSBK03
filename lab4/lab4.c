@@ -49,8 +49,7 @@ void SpriteBehavior(SpritePtr current) {
 			other = other->next;
 			continue;
 		}
-		printf("%f\n", distance(current->position, other->position));
-		if (distance(current->position, other->position) < 50){
+		if (distance(current->position, other->position) < 100){
 			numberCloseBy++;
 			centerOfMass.h += other->position.h;
 			centerOfMass.v += other->position.v;
@@ -134,9 +133,18 @@ void Init() {
 	dogFace = GetFace("bilder/dog.tga"); // En hund
 	foodFace = GetFace("bilder/mat.tga"); // Mat
 
-	NewSprite(sheepFace, 100, 200, 1, 1);
-	NewSprite(sheepFace, 200, 100, 1.5, -1);
-	NewSprite(sheepFace, 250, 200, -1, 1.5);
+	for(int n = 0; n < 10; n++) {
+		NewSprite(sheepFace,
+			rand() % 700 + 50,
+			rand() % 500 + 50,
+			((rand() % 200) - 100) / 100.0,
+			((rand() % 200) - 100) / 100.0
+		);
+	}
+
+	// NewSprite(sheepFace, 100, 200, 1, 1);
+	// NewSprite(sheepFace, 200, 100, 1.5, -1);
+	// NewSprite(sheepFace, 250, 200, -1, 1.5);
 }
 
 int main(int argc, char **argv)
