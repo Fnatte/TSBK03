@@ -60,12 +60,10 @@ void SpriteBehavior(SpritePtr current) {
 	if (numberCloseBy > 0) {
 		centerOfMass.h /= numberCloseBy;
 		centerOfMass.v /= numberCloseBy;
-		printf("(%f, %f)\n", centerOfMass.h, centerOfMass.v);
 
+		// Move towards each other
 		FPoint direction = {centerOfMass.h - current->position.h, centerOfMass.v - current->position.v};
-		printf("direction: (%f, %f)", direction.h, direction.v);
 		direction = normalize(direction);
-
 		float length = amplitude(current->speed);
 		current->speed.h = direction.h * length;
 		current->speed.v = direction.v * length;
