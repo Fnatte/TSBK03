@@ -14,19 +14,17 @@
 
 #include "LoadTGA.h"
 
-typedef struct FPoint
-{
+typedef struct FPoint {
 	GLfloat h, v;
 } FPoint;
 
-typedef struct SpriteRec
-{
+typedef struct SpriteRec {
 	FPoint position;
 	TextureData *face;
 	FPoint speed;
 	GLfloat rotation;
 	struct SpriteRec *next;
-	
+
 	// Add custom sprite data here as needed
 } SpriteRec, *SpritePtr;
 
