@@ -29,7 +29,7 @@ FPoint division(FPoint p, float divisor) {
 }
 
 FPoint scale(FPoint p, float factor) {
-	return (FPoint){p.h * factor, p.v / factor};
+	return (FPoint){p.h * factor, p.v * factor};
 }
 
 float amplitude(FPoint p) {
@@ -48,17 +48,23 @@ float euclidDist(FPoint first, FPoint second) {
 	return sqrt(pow(first.h - second.h, 2) + sqrt(pow(first.v - second.v, 2)));
 }
 
-FPoint clamp(FPoint point, float max, float min) {
+FPoint clamp(FPoint point, float min, float max) {
+	float amp = amplitude(point);
+	amp = (amp > max)? max : (amp < min)? min : amp;
+	return  scale(normalize(point), amp);
+}
+
+FPoint squareClamp(FPoint point, float min, float max) {
 	return (FPoint){(point.h > max)? max : (point.h < min)? min : point.h,
 			(point.v > max)? max : (point.v < min)? min : point.v};
 }
 
 void SpriteBehavior(SpritePtr current) {
-	float repelDistance = 40;
+	float repelDistance = 25;
 	float gravityDistance = 100;
 	float alignDistance = 60;
 	float gravityWeight = 0.05;
-	float repelWeight = 1.0;
+	float repelWeight = 0.5;
 	float alignWeight = 0.1;
 	// Lägg till din labbkod här. Det går bra att ändra var som helst i
 	// koden i övrigt, men mycket kan samlas här. Du kan utgå från den
@@ -98,7 +104,13 @@ void SpriteBehavior(SpritePtr current) {
 	current->speed = add(current->speed, scale(repelForce, repelWeight));
 	current->speed = add(current->speed, scale(meanDirection, alignWeight));
 	current->speed = add(current->speed, scale(gravity, gravityWeight));
-	current->speed = clamp(current->speed, 5.0, -5.0);
+	current->speed = clamp(current->speed, 0.0, 5.0);
+
+	if (0) {
+		printf("repelForce: (%f, %f)\n", repelForce.h, repelForce.v);
+		printf("meanDirection: (%f, %f)\n", meanDirection.h, meanDirection.v);
+		printf("gravity: (%f, %f)\n", gravity.h, gravity.v);
+	}
 }
 
 // Drawing routine
