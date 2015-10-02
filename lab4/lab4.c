@@ -45,7 +45,7 @@ FPoint normalize(FPoint p) {
 }
 
 float euclidDist(FPoint first, FPoint second) {
-	return sqrt(pow(first.h - second.h, 2) + sqrt(pow(first.v - second.v, 2)));
+	return sqrt(pow(first.h - second.h, 2) + pow(first.v - second.v, 2));
 }
 
 FPoint clamp(FPoint point, float min, float max) {
