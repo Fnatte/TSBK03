@@ -65,7 +65,7 @@ FPoint squareClamp(FPoint point, float min, float max) {
 
 void SpriteBehavior(SpritePtr current) {
 	float repelDistance = 70;
-	float gravityDistance = 150;
+	float gravityDistance = 175;
 	float alignDistance = 60;
 	float dogDistance = 300;
 	float gravityWeight = 0.06;
@@ -84,7 +84,7 @@ void SpriteBehavior(SpritePtr current) {
 	}
 	if (current->face == dogFace) {
 		current->speed = add(current->speed, scale((FPoint){frand() - 0.5, frand() - 0.5}, 0.05));
-		current->speed = clamp(current->speed, 0.2, 0.5);
+		current->speed = clamp(current->speed, 0.3, 0.7);
 		return;
 	}
 
