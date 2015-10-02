@@ -67,11 +67,10 @@ void SpriteBehavior(SpritePtr current) {
 											 other->position.v - current->position.v};
 		direction = normalize(direction);
 		if (length < minDistance) {
-			printf("Direction: (%f, %f)\n", direction.v, direction.h);
 			force.h -= direction.h * (minDistance - length);
 			force.v -= direction.v * (minDistance - length);
 		}
-		else if (length < 50) {
+		else if (length < 100) {
 			force.h += direction.h;
 			force.v += direction.v;
 		}
