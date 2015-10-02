@@ -60,12 +60,12 @@ FPoint squareClamp(FPoint point, float min, float max) {
 }
 
 void SpriteBehavior(SpritePtr current) {
-	float repelDistance = 25;
-	float gravityDistance = 100;
+	float repelDistance = 70;
+	float gravityDistance = 150;
 	float alignDistance = 60;
-	float gravityWeight = 0.05;
-	float repelWeight = 0.5;
-	float alignWeight = 0.1;
+	float gravityWeight = 0.06;
+	float repelWeight = 1.0;
+	float alignWeight = 0.25;
 	// Lägg till din labbkod här. Det går bra att ändra var som helst i
 	// koden i övrigt, men mycket kan samlas här. Du kan utgå från den
 	// globala listroten, gSpriteRoot, för att kontrollera alla sprites
