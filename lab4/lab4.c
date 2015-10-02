@@ -18,7 +18,11 @@
 #include "GL_utilities.h"
 #include <math.h>
 
-// Lägg till egna globaler här efter behov.
+TextureData *blackFace;
+
+float frand() {
+ return rand() / ((float)RAND_MAX+1);
+}
 
 FPoint add(FPoint f, FPoint s) {
 	return (FPoint){f.h + s.h, f.v + s.v};
@@ -66,14 +70,16 @@ void SpriteBehavior(SpritePtr current) {
 	float gravityWeight = 0.06;
 	float repelWeight = 1.0;
 	float alignWeight = 0.25;
-	// Lägg till din labbkod här. Det går bra att ändra var som helst i
-	// koden i övrigt, men mycket kan samlas här. Du kan utgå från den
-	// globala listroten, gSpriteRoot, för att kontrollera alla sprites
-	// hastigheter och positioner, eller arbeta från egna globaler.
+
 	SpritePtr other = gSpriteRoot;
 	FPoint gravity = {0, 0};
 	FPoint repelForce = {0, 0};
 	FPoint meanDirection = {0, 0};
+
+	if (current->face == blackFace) {
+		current->speed = add(current->speed, (FPoint){frand() - 0.5, frand() - 0.5});
+	}
+
 	do {
 		if (current == other) {
 			other = other->next;
@@ -171,7 +177,7 @@ void Key(unsigned char key,
 }
 
 void Init() {
-	TextureData *sheepFace, *blackFace, *dogFace, *foodFace;
+	TextureData *sheepFace, *dogFace, *foodFace;
 
 	LoadTGATextureSimple("bilder/leaves.tga", &backgroundTexID); // Bakgrund
 
@@ -188,10 +194,7 @@ void Init() {
 			((rand() % 200) - 100) / 100.0
 		);
 	}
-
-	// NewSprite(sheepFace, 100, 200, 1, 1);
-	// NewSprite(sheepFace, 200, 100, 1.5, -1);
-	// NewSprite(sheepFace, 250, 200, -1, 1.5);
+	NewSprite(blackFace, 100, 200, 1, 1);
 }
 
 int main(int argc, char **argv)
