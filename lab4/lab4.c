@@ -20,11 +20,15 @@
 
 // Lägg till egna globaler här efter behov.
 
+FPoint add(FPoint f, FPoint s) {
+	return (FPoint){f.h + s.h, f.v + s.v};
+}
+
 FPoint division(FPoint p, float divisor) {
 	return (FPoint){p.h / divisor, p.v / divisor};
 }
 
-FPoint multiplication(FPoint p, float factor) {
+FPoint scale(FPoint p, float factor) {
 	return (FPoint){p.h * factor, p.v / factor};
 }
 
@@ -50,38 +54,50 @@ FPoint clamp(FPoint point, float max, float min) {
 }
 
 void SpriteBehavior(SpritePtr current) {
-	float minDistance = 15;
+	float repelDistance = 40;
+	float gravityDistance = 100;
+	float alignDistance = 60;
+	float gravityWeight = 0.05;
+	float repelWeight = 1.0;
+	float alignWeight = 0.1;
 	// Lägg till din labbkod här. Det går bra att ändra var som helst i
 	// koden i övrigt, men mycket kan samlas här. Du kan utgå från den
 	// globala listroten, gSpriteRoot, för att kontrollera alla sprites
 	// hastigheter och positioner, eller arbeta från egna globaler.
 	SpritePtr other = gSpriteRoot;
-	FPoint force = {0, 0};
+	FPoint gravity = {0, 0};
+	FPoint repelForce = {0, 0};
+	FPoint meanDirection = {0, 0};
 	do {
 		if (current == other) {
 			other = other->next;
 			continue;
 		}
 		float length = euclidDist(current->position, other->position);
-		FPoint direction = {other->position.h - current->position.h,
+		FPoint directionToOther = {other->position.h - current->position.h,
 											 other->position.v - current->position.v};
-		direction = normalize(direction);
-		if (length < minDistance) {
-			force.h -= direction.h * (minDistance - length);
-			force.v -= direction.v * (minDistance - length);
+		directionToOther = normalize(directionToOther);
+		if (length < repelDistance) {
+			repelForce.h -= directionToOther.h * ((repelDistance - length) / repelDistance);
+			repelForce.v -= directionToOther.v * ((repelDistance - length) / repelDistance);
 		}
-		else if (length < 100) {
-			force.h += direction.h;
-			force.v += direction.v;
+		else if (length < gravityDistance) {
+			gravity.h += directionToOther.h;
+			gravity.v += directionToOther.v;
+		}
+		if (length < alignDistance) {
+			FPoint normalizedSpeed = normalize(other->speed);
+			meanDirection = add(normalizedSpeed, meanDirection);
 		}
 
 		other = other->next;
 	} while (other != NULL);
+	meanDirection = add(normalize(current->speed), meanDirection);
+	meanDirection = normalize(meanDirection);
 
-	force = division(force, 10);
-
-	current->speed.h += force.h;
-	current->speed.v += force.v;
+	current->speed = add(current->speed, scale(repelForce, repelWeight));
+	current->speed = add(current->speed, scale(meanDirection, alignWeight));
+	current->speed = add(current->speed, scale(gravity, gravityWeight));
 	current->speed = clamp(current->speed, 5.0, -5.0);
 }
 
