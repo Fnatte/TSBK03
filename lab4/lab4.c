@@ -40,7 +40,7 @@ FPoint normalize(FPoint p) {
 	return retVal;
 }
 
-float distance(FPoint first, FPoint second) {
+float euclidDist(FPoint first, FPoint second) {
 	return sqrt(pow(first.h - second.h, 2) + sqrt(pow(first.v - second.v, 2)));
 }
 
@@ -50,6 +50,7 @@ FPoint clamp(FPoint point, float max, float min) {
 }
 
 void SpriteBehavior(SpritePtr current) {
+	float minDistance = 15;
 	// Lägg till din labbkod här. Det går bra att ändra var som helst i
 	// koden i övrigt, men mycket kan samlas här. Du kan utgå från den
 	// globala listroten, gSpriteRoot, för att kontrollera alla sprites
@@ -61,17 +62,18 @@ void SpriteBehavior(SpritePtr current) {
 			other = other->next;
 			continue;
 		}
-		float length = distance(current->position, other->position);
-		FPoint distance = {other->position.h - current->position.h,
+		float length = euclidDist(current->position, other->position);
+		FPoint direction = {other->position.h - current->position.h,
 											 other->position.v - current->position.v};
-		distance = normalize(distance);
-		if (length < 10) {
-			force.h -= distance.h * 5;
-			force.v -= distance.v * 5;
+		direction = normalize(direction);
+		if (length < minDistance) {
+			printf("Direction: (%f, %f)\n", direction.v, direction.h);
+			force.h -= direction.h * (minDistance - length);
+			force.v -= direction.v * (minDistance - length);
 		}
-		else if (length < 100) {
-			force.h += distance.h;
-			force.v += distance.v;
+		else if (length < 50) {
+			force.h += direction.h;
+			force.v += direction.v;
 		}
 
 		other = other->next;
