@@ -18,7 +18,7 @@
 #include "GL_utilities.h"
 #include <math.h>
 
-TextureData *blackFace;
+TextureData *dogFace, *blackFace;
 
 float frand() {
  return rand() / ((float)RAND_MAX+1);
@@ -67,17 +67,25 @@ void SpriteBehavior(SpritePtr current) {
 	float repelDistance = 70;
 	float gravityDistance = 150;
 	float alignDistance = 60;
+	float dogDistance = 300;
 	float gravityWeight = 0.06;
 	float repelWeight = 1.0;
 	float alignWeight = 0.25;
+	float dogWeight = 1.0;
 
 	SpritePtr other = gSpriteRoot;
 	FPoint gravity = {0, 0};
 	FPoint repelForce = {0, 0};
 	FPoint meanDirection = {0, 0};
+	FPoint dogForce = {0, 0};
 
 	if (current->face == blackFace) {
 		current->speed = add(current->speed, (FPoint){frand() - 0.5, frand() - 0.5});
+	}
+	if (current->face == dogFace) {
+		current->speed = add(current->speed, scale((FPoint){frand() - 0.5, frand() - 0.5}, 0.05));
+		current->speed = clamp(current->speed, 0.2, 0.5);
+		return;
 	}
 
 	do {
@@ -101,12 +109,19 @@ void SpriteBehavior(SpritePtr current) {
 			FPoint normalizedSpeed = normalize(other->speed);
 			meanDirection = add(normalizedSpeed, meanDirection);
 		}
+		if (other->face == dogFace) {
+			if (length < dogDistance) {
+			dogForce.h -= directionToOther.h * ((dogDistance - length) / dogDistance);
+			dogForce.v -= directionToOther.v * ((dogDistance - length) / dogDistance);
+			}
+		}
 
 		other = other->next;
 	} while (other != NULL);
 	meanDirection = add(normalize(current->speed), meanDirection);
 	meanDirection = normalize(meanDirection);
 
+	current->speed = add(current->speed, scale(dogForce, dogWeight));
 	current->speed = add(current->speed, scale(repelForce, repelWeight));
 	current->speed = add(current->speed, scale(meanDirection, alignWeight));
 	current->speed = add(current->speed, scale(gravity, gravityWeight));
@@ -177,7 +192,7 @@ void Key(unsigned char key,
 }
 
 void Init() {
-	TextureData *sheepFace, *dogFace, *foodFace;
+	TextureData *sheepFace, *foodFace;
 
 	LoadTGATextureSimple("bilder/leaves.tga", &backgroundTexID); // Bakgrund
 
@@ -195,6 +210,7 @@ void Init() {
 		);
 	}
 	NewSprite(blackFace, 100, 200, 1, 1);
+	NewSprite(dogFace, 100, 300, 1, 1);
 }
 
 int main(int argc, char **argv)
